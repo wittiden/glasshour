@@ -1,0 +1,1725 @@
+/* =========================================================
+   Glasshour — стеклянная стартовая страница Chrome
+   Часы — правый край, поиск и ссылки — центр слева.
+   Палитра: чёрный · тёмно-серый · графит · белый + Google
+   ========================================================= */
+
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/roboto-300-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/roboto-400-latin.woff2") format("woff2");
+}
+
+:root {
+  --ink:      #0a0a0c;
+  --graphite: #1a1a1e;
+  --ash:      #2f3037;
+
+  --snow:     #f7f7f9;
+  --mist:     #b6b7bf;
+  --smoke:    #787983;
+
+  --g-blue:   #4285f4;
+  --g-red:    #ea4335;
+  --g-yellow: #fbbc05;
+  --g-green:  #34a853;
+
+  --edge:       clamp(14px, 2.4vw, 44px);
+  --clock-size:  min(44vw, 86vh);
+  --card-r:     clamp(24px, 2vw, 38px);
+  --ease:       cubic-bezier(0.2, 0.85, 0.15, 1);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  position: relative;
+  overflow: hidden;
+
+  /* фон осветлён примерно на 20 % */
+  background:
+    radial-gradient(95vw 85vh at 72% 6%, rgba(214, 217, 230, 0.44) 0%, rgba(214, 217, 230, 0) 64%),
+    radial-gradient(80vw 80vh at 4% 98%, rgba(160, 164, 178, 0.34) 0%, rgba(160, 164, 178, 0) 66%),
+    radial-gradient(58vw 52vh at 44% 60%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 70%),
+    linear-gradient(158deg, #55565f 0%, #323339 46%, #3f404a 100%);
+
+  color: var(--snow);
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+               "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, sans-serif;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------
+   Код на фоне
+   --------------------------------------------------------- */
+
+.code {
+  position: fixed;
+  inset: -12%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.74;
+  filter: blur(0.4px);
+}
+
+.code__grid {
+  display: flex;
+  gap: clamp(28px, 3.4vw, 64px);
+  padding: 34px;
+  transform: rotate(-1.6deg) scale(1.04);
+  transform-origin: 50% 50%;
+}
+
+.code__col {
+  margin: 0;
+  white-space: pre;
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(10px, 0.82vw, 12.5px);
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+  color: rgba(169, 183, 198, 0.55);
+}
+
+/* палитра Darcula / PyCharm */
+.tok-kw      { color: rgba(204, 120, 50, 0.95); }
+.tok-str     { color: rgba(106, 135, 89, 0.95); }
+.tok-num     { color: rgba(104, 151, 187, 0.95); }
+.tok-fn      { color: rgba(255, 198, 109, 0.90); }
+.tok-comment { color: rgba(122, 126, 133, 0.85); }
+.tok-op      { color: rgba(169, 183, 198, 0.70); }
+.tok-name    { color: rgba(169, 183, 198, 0.60); }
+
+.code-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(90vw 80vh at 74% 10%, rgba(70, 72, 82, 0.40) 0%, rgba(70, 72, 82, 0) 62%),
+    linear-gradient(158deg, rgba(60, 62, 70, 0.70) 0%, rgba(42, 43, 49, 0.82) 48%, rgba(55, 56, 64, 0.72) 100%);
+}
+
+/* затемнение страницы на 40 % */
+.dim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.40);
+}
+
+/* ---------------------------------------------------------
+   Свет за стеклом
+   --------------------------------------------------------- */
+
+.ambient {
+  position: fixed;
+  inset: -30%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+.blob {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+}
+
+.blob--a {
+  width: 52vmax;
+  height: 52vmax;
+  top: -14%;
+  right: -6%;
+  background: radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.07) 44%, rgba(255, 255, 255, 0) 70%);
+  animation: drift-a 28s var(--ease) infinite alternate;
+}
+
+.blob--b {
+  width: 38vmax;
+  height: 38vmax;
+  top: 38%;
+  right: 6%;
+  background: radial-gradient(circle at 58% 42%, rgba(214, 218, 231, 0.26), rgba(160, 164, 180, 0.08) 46%, rgba(160, 164, 180, 0) 72%);
+  animation: drift-b 36s var(--ease) infinite alternate;
+}
+
+.blob--c {
+  width: 36vmax;
+  height: 36vmax;
+  bottom: -14%;
+  left: 2%;
+  background: radial-gradient(circle at 46% 52%, rgba(198, 202, 214, 0.24), rgba(120, 124, 138, 0.07) 48%, rgba(120, 124, 138, 0) 72%);
+  animation: drift-c 40s var(--ease) infinite alternate;
+}
+
+.blob--d {
+  width: 26vmax;
+  height: 26vmax;
+  top: 8%;
+  left: 30%;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.19), rgba(255, 255, 255, 0) 70%);
+  animation: drift-d 32s var(--ease) infinite alternate;
+}
+
+/* диагональная полоса света — преломляется в стекле */
+.blob--e {
+  width: 76vmax;
+  height: 16vmax;
+  top: 20%;
+  right: -34%;
+  border-radius: 50%;
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.22) 42%,
+    rgba(255, 255, 255, 0.05) 62%,
+    rgba(255, 255, 255, 0) 100%);
+  rotate: -26deg;
+  animation: drift-e 44s var(--ease) infinite alternate;
+}
+
+@keyframes drift-a {
+  0%   { transform: translate3d(0, 0, 0)      scale(1)   rotate(0deg); }
+  50%  { transform: translate3d(-5%, 6%, 0)   scale(1.08) rotate(10deg); }
+  100% { transform: translate3d(4%, -4%, 0)   scale(0.95) rotate(-7deg); }
+}
+@keyframes drift-b {
+  0%   { transform: translate3d(0, 0, 0)      scale(1); }
+  60%  { transform: translate3d(-8%, -7%, 0)  scale(1.14); }
+  100% { transform: translate3d(5%, 5%, 0)    scale(0.93); }
+}
+@keyframes drift-c {
+  0%   { transform: translate3d(0, 0, 0)      scale(1); }
+  50%  { transform: translate3d(7%, -5%, 0)   scale(1.1); }
+  100% { transform: translate3d(-4%, 4%, 0)   scale(0.97); }
+}
+@keyframes drift-d {
+  0%   { transform: translate3d(0, 0, 0)      scale(1); }
+  100% { transform: translate3d(6%, 8%, 0)    scale(1.16); }
+}
+@keyframes drift-e {
+  0%   { transform: translate3d(-4%, 3%, 0); }
+  100% { transform: translate3d(4%, -4%, 0); }
+}
+
+/* Лёгкий режим: фон статичный, без постоянных анимаций и blend-режимов */
+.ambient .blob {
+  animation: none !important;
+}
+
+/* ---------------------------------------------------------
+   Плёнка
+   --------------------------------------------------------- */
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(130% 100% at 72% 10%, rgba(0, 0, 0, 0) 42%, rgba(0, 0, 0, 0.30) 100%),
+    radial-gradient(110% 90% at 40% 60%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.20) 100%);
+}
+
+/* ---------------------------------------------------------
+   Жидкое стекло
+   --------------------------------------------------------- */
+
+.glass {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--card-r);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+
+  --fade: 8px;
+  -webkit-mask-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0) 0, #000 var(--fade), #000 calc(100% - var(--fade)), rgba(0, 0, 0, 0) 100%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0) 0, #000 var(--fade), #000 calc(100% - var(--fade)), rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-composite: source-in;
+          mask-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0) 0, #000 var(--fade), #000 calc(100% - var(--fade)), rgba(0, 0, 0, 0) 100%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0) 0, #000 var(--fade), #000 calc(100% - var(--fade)), rgba(0, 0, 0, 0) 100%);
+          mask-composite: intersect;
+
+  background-color: rgba(255, 255, 255, 0);
+  background-image:
+    radial-gradient(240px 240px at 0% 0%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 72%),
+    radial-gradient(280px 280px at 100% 100%, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0) 74%),
+    radial-gradient(190px 190px at 100% 0%, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 72%),
+    linear-gradient(152deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.008) 42%,
+      rgba(255, 255, 255, 0.03) 100%);
+
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+
+  box-shadow:
+    0 40px 90px -40px rgba(0, 0, 0, 0.45),
+    0 10px 30px -22px rgba(0, 0, 0, 0.35),
+    0 0 60px -34px rgba(255, 255, 255, 0.08),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.28),
+    inset 0 -1.5px 1px rgba(255, 255, 255, 0.10),
+    inset 1px 0 1.5px -0.5px rgba(255, 255, 255, 0.09),
+    inset -1px 0 1.5px -0.5px rgba(255, 255, 255, 0.09),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+
+  animation: glass-in 1.2s var(--ease) both;
+}
+
+/* кромка */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  padding: 1.5px;
+  pointer-events: none;
+
+  background: linear-gradient(148deg,
+    rgba(232, 226, 255, 0.46) 0%,
+    rgba(255, 255, 255, 0.11) 13%,
+    rgba(255, 255, 255, 0.03) 34%,
+    rgba(255, 255, 255, 0.01) 54%,
+    rgba(255, 255, 255, 0.05) 74%,
+    rgba(226, 240, 255, 0.28) 92%,
+    rgba(214, 230, 255, 0.42) 100%);
+
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite: exclude;
+}
+
+/* мягкий бегущий блик — толстый и размытый */
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: -62%;
+  z-index: 1;
+  pointer-events: none;
+
+  background: conic-gradient(from 200deg at 50% 50%,
+    rgba(255, 255, 255, 0.00) 0deg,
+    rgba(206, 196, 255, 0.16) 10deg,
+    rgba(206, 196, 255, 0.09) 40deg,
+    rgba(255, 255, 255, 0.00) 72deg,
+    rgba(255, 255, 255, 0.00) 118deg,
+    rgba(255, 255, 255, 0.13) 140deg,
+    rgba(255, 255, 255, 0.05) 172deg,
+    rgba(255, 255, 255, 0.00) 204deg,
+    rgba(255, 255, 255, 0.00) 282deg,
+    rgba(188, 224, 255, 0.14) 304deg,
+    rgba(188, 224, 255, 0.07) 336deg,
+    rgba(255, 255, 255, 0.00) 360deg);
+
+  mix-blend-mode: screen;
+  opacity: 0.45;
+}
+
+/* Цветные блики по краям — «желе», следуют за курсором */
+.chroma {
+  position: absolute;
+  inset: -30%;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+
+  background:
+    /* подвижные блики */
+    radial-gradient(42% 34% at var(--cx, 25%) var(--cy, 22%),
+      rgba(186, 164, 255, 0.58),
+      rgba(186, 164, 255, 0) 72%),
+    radial-gradient(38% 32% at calc(100% - var(--cx, 25%)) calc(100% - var(--cy, 22%)),
+      rgba(150, 210, 255, 0.48),
+      rgba(150, 210, 255, 0) 72%),
+    /* выраженные блики в углах */
+    radial-gradient(26% 22% at 5% 7%, rgba(212, 180, 255, 0.80), rgba(212, 180, 255, 0) 72%),
+    radial-gradient(24% 20% at 95% 9%, rgba(160, 220, 255, 0.78), rgba(160, 220, 255, 0) 72%),
+    radial-gradient(24% 20% at 5% 93%, rgba(170, 230, 255, 0.72), rgba(170, 230, 255, 0) 72%),
+    radial-gradient(26% 22% at 95% 91%, rgba(226, 190, 255, 0.74), rgba(226, 190, 255, 0) 72%);
+
+  filter: none;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+
+/* увеличенный «под лупой» фон из кода */
+.lens {
+  position: absolute;
+  inset: -8%;
+  z-index: 1;
+  pointer-events: none;
+
+  background-image: url("assets/code-lens.svg");
+  background-size: 2000px auto;
+  background-position: 50% 45%;
+  background-repeat: no-repeat;
+
+  filter: blur(5px) saturate(110%);
+  opacity: 0.12;
+  mix-blend-mode: screen;
+}
+
+.clock .lens { opacity: 0.36; }
+.search .lens { opacity: 0.14; }
+.calendar .lens { opacity: 0.12; }
+.link .lens { display: none; }
+
+/* блик под курсором */
+.glare {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  filter: none;
+  mix-blend-mode: screen;
+  opacity: 0.80;
+
+  background:
+    radial-gradient(52% 52% at var(--mx, 30%) var(--my, 20%),
+      rgba(255, 255, 255, 0.13),
+      rgba(255, 255, 255, 0.04) 45%,
+      rgba(255, 255, 255, 0) 72%);
+
+}
+
+@keyframes glass-in {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+    scale: 0.985;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .glass {
+    background-color: rgba(44, 45, 52, 0.94);
+    background-image:
+      radial-gradient(240px 240px at 0% 0%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 72%),
+      linear-gradient(152deg, rgba(54, 55, 63, 0.96), rgba(30, 31, 36, 0.96));
+  }
+}
+
+/* ---------------------------------------------------------
+   Верхние кнопки Chrome
+   --------------------------------------------------------- */
+
+.topbar {
+  --fade: 5px;
+
+  position: fixed;
+  top: clamp(14px, 1.5vw, 22px);
+  left: var(--edge);
+  z-index: 40;
+
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+
+  background-color: rgba(10, 11, 16, 0.44);
+
+  box-shadow:
+    0 20px 50px -30px rgba(0, 0, 0, 0.75),
+    inset 0 1px 1px rgba(255, 255, 255, 0.26),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.10);
+}
+
+.topbar__btn {
+  position: relative;
+  z-index: 3;
+
+  width: clamp(42px, 3vw, 50px);
+  height: clamp(42px, 3vw, 50px);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+
+  display: grid;
+  place-items: center;
+
+  color: rgba(255, 255, 255, 0.90);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.topbar__btn + .topbar__btn::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 50%;
+  width: 1px;
+  height: 19px;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.topbar__btn svg {
+  display: block;
+  width: 21px;
+  height: 21px;
+}
+
+.topbar__btn:active {
+  background: rgba(255, 255, 255, 0.10);
+  transform: scale(0.94);
+}
+
+.topbar__btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 3px;
+}
+
+.topbar__btn:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.topbar__btn:disabled:active {
+  background: transparent;
+  transform: none;
+}
+
+.topbar__btn[hidden],
+.topbar__count[hidden] { display: none; }
+
+/* счётчик открытых окон */
+.topbar__count {
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  z-index: 4;
+
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: 999px;
+
+  display: grid;
+  place-items: center;
+
+  background: #ffffff;
+  color: #0a0a0c;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.40);
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------
+   Часы: правый край
+   --------------------------------------------------------- */
+
+.clock {
+  position: fixed;
+  z-index: 2;
+  right: var(--edge);
+  top: calc(50% - var(--clock-size) * 0.5);
+  width: var(--clock-size);
+  height: var(--clock-size);
+
+  display: grid;
+  place-items: center;
+
+  padding: clamp(12px, 1.8vw, 30px);
+  container-type: size;
+
+  border-radius: var(--card-r);
+  animation-delay: 0.04s;
+}
+
+.clock__face {
+  position: relative;
+  z-index: 3;
+  width: min(100cqw, 100cqh);
+  aspect-ratio: 1;
+  container-type: size;
+
+  border-radius: 23%;
+  overflow: hidden;
+
+  background: none;
+  box-shadow: none;
+}
+
+/* внутренний ободок убран */
+.clock__face::before {
+  content: none;
+}
+
+/* ---------------------------------------------------------
+   Деления
+   --------------------------------------------------------- */
+
+.ticks {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.tick-mark {
+  position: absolute;
+  width: 0.46%;
+  height: var(--len, 3%);
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.32);
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+}
+
+.tick-mark.is-hour {
+  width: 1.02%;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+/* четыре ключевых деления — цвета Google */
+.tick-mark.is-blue   { width: 1.3%; background: var(--g-blue);   box-shadow: 0 0 12px rgba(66, 133, 244, 0.35); }
+.tick-mark.is-red    { width: 1.3%; background: var(--g-red);    box-shadow: 0 0 12px rgba(234, 67, 53, 0.35); }
+.tick-mark.is-yellow { width: 1.3%; background: var(--g-yellow); box-shadow: 0 0 12px rgba(251, 188, 5, 0.35); }
+.tick-mark.is-green  { width: 1.3%; background: var(--g-green);  box-shadow: 0 0 12px rgba(52, 168, 83, 0.35); }
+
+/* ---------------------------------------------------------
+   Цифры 1–12 — Roboto (шрифт в духе Google Chrome)
+   --------------------------------------------------------- */
+
+.numerals {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.numeral {
+  position: absolute;
+  translate: -50% -50%;
+
+  font-family: "Google Sans", "Product Sans", "Roboto", "Segoe UI", Arial, sans-serif;
+  font-size: 6.4cqw;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: rgba(250, 250, 252, 0.76);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------------------------------------------------------
+   Стрелки — стиль iOS, цвета Google
+   --------------------------------------------------------- */
+
+.hand {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) rotate(var(--angle, 0deg));
+  border-radius: 999px;
+}
+
+.hand--hour {
+  z-index: 3;
+  width: 2.40%;
+  height: 24%;
+  background: linear-gradient(180deg, #9dc0ff 0%, #5a93f5 40%, #3b76e0 75%, #2b5fc4 100%);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+}
+
+.hand--minute {
+  z-index: 4;
+  width: 1.80%;
+  height: 35%;
+  background: linear-gradient(180deg, #ffb0a6 0%, #f2695c 32%, #ea4335 70%, #b3271e 100%);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+}
+
+.hand--second {
+  z-index: 5;
+  width: 0.40%;
+  height: 38%;
+  background: linear-gradient(180deg, #ffe49a 0%, #fbc02d 48%, #fbbc05 82%, #e0a800 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* хвостик секундной стрелки, как в iOS */
+.hand--second::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 26%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, #fbbc05, #d99e00);
+}
+
+/* центральная ось */
+.pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 6;
+  width: 2.8%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #ffffff 0%, #e9ebf1 40%, #a8adb8 74%, #6b707b 100%);
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+.pin::after {
+  content: "";
+  position: absolute;
+  inset: 36%;
+  border-radius: 50%;
+  background: var(--g-yellow);
+  box-shadow: 0 0 8px rgba(251, 188, 5, 0.80);
+}
+
+/* отражение на стекле циферблата */
+.crystal {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  border-radius: 23%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+
+  background:
+    radial-gradient(44% 30% at 27% 14%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 72%),
+    radial-gradient(28% 16% at 70% 88%, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 72%),
+    radial-gradient(120% 120% at 50% 50%, rgba(255, 255, 255, 0) 62%, rgba(255, 255, 255, 0.04) 100%);
+}
+
+/* ---------------------------------------------------------
+   Левая колонка: поиск и ссылки
+   --------------------------------------------------------- */
+
+.left {
+  position: fixed;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: calc(var(--clock-size) + var(--edge) + clamp(18px, 2.6vw, 48px));
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 clamp(12px, 2vw, 48px);
+}
+
+.left__inner {
+  width: min(676px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.6vw, 18px);
+}
+
+/* фирменный знак Google над поиском: прозрачная область без подложки */
+.google-brand {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  flex: none;
+  margin-bottom: 2px;
+  background: none;
+  user-select: none;
+}
+
+.google-brand img {
+  display: block;
+  width: clamp(218px, 15vw, 270px);
+  height: auto;
+  background: none;
+  box-shadow: none;
+  filter: none;
+}
+
+/* невидимые defs для градиента иконок */
+.svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------
+   Календарь
+   --------------------------------------------------------- */
+
+.calendar {
+  --fade: 8px;
+  align-self: stretch;
+  flex: none;
+  width: 100%;
+  min-height: clamp(205px, 22.1vh, 255px);
+  padding: 0;
+  border-radius: var(--card-r);
+
+  display: flex;
+  align-items: stretch;
+
+  user-select: none;
+  animation-delay: 0.06s;
+}
+
+.calendar__today {
+  width: 38%;
+  padding: 16px 14px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+
+  text-align: center;
+}
+
+.calendar__monthview {
+  position: relative;
+  z-index: 3;
+  flex: 1;
+  min-width: 0;
+  padding: 16px 19px;
+
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.calendar__title {
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(247, 247, 249, 0.55);
+}
+
+.calendar__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(247, 247, 249, 0.30);
+}
+
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  align-content: start;
+}
+
+.calendar__daycell {
+  width: clamp(22px, 1.8vw, 26px);
+  height: clamp(22px, 1.8vw, 26px);
+  justify-self: center;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+  font-size: clamp(11.5px, 0.85vw, 13px);
+  color: rgba(247, 247, 249, 0.60);
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar__daycell.is-empty { visibility: hidden; }
+
+.calendar__daycell.is-today {
+  background: #ffffff;
+  color: #0a0a0c;
+  font-weight: 600;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+}
+
+.calendar__weekday {
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(247, 247, 249, 0.42);
+}
+
+.calendar__day {
+  font-family: "Google Sans", "Product Sans", "Roboto", "Segoe UI", Arial, sans-serif;
+  font-size: clamp(62px, 5.4vw, 91px);
+  font-weight: 300;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar__month {
+  font-size: 16px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(247, 247, 249, 0.55);
+}
+
+.calendar__year {
+  font-size: 13.5px;
+  letter-spacing: 0.18em;
+  color: rgba(247, 247, 249, 0.30);
+  font-variant-numeric: tabular-nums;
+}
+
+.search-wrap {
+  position: relative;
+  flex: none;
+  width: 100%;
+  align-self: flex-start;
+}
+
+.search-wrap .search { width: 100%; }
+
+.search {
+  --fade: 10px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 1.55vw, 21px);
+
+  height: clamp(70px, 8.6vh, 98px);
+  padding: 0 clamp(24px, 2.2vw, 32px);
+  border-radius: var(--card-r);
+
+  cursor: text;
+  animation-delay: 0.10s;
+}
+
+.g-logo {
+  position: relative;
+  z-index: 3;
+  flex: none;
+  width: clamp(27px, 2vw, 31px);
+  height: auto;
+  color: #ffffff;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.4));
+}
+
+/* иконка Google внутри поиска — белая */
+.g-logo path { fill: currentColor; }
+
+/* нижнее свечение поиска в цветах Google */
+.search__google-line {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+
+  border-radius: var(--card-r);
+
+  background: linear-gradient(90deg,
+    #4285F4 0 25%,
+    #EA4335 25% 50%,
+    #FBBC05 50% 75%,
+    #34A853 75% 100%);
+
+  filter: blur(17px) saturate(112%);
+  opacity: 0.40;
+
+  /* свечение обрезается ровно по форме блока поиска */
+  -webkit-clip-path: inset(0 round var(--card-r));
+          clip-path: inset(0 round var(--card-r));
+
+  -webkit-mask-image: linear-gradient(to top,
+    #000 0%,
+    rgba(0, 0, 0, 0.52) 3.5%,
+    rgba(0, 0, 0, 0) 16%,
+    rgba(0, 0, 0, 0) 100%);
+          mask-image: linear-gradient(to top,
+    #000 0%,
+    rgba(0, 0, 0, 0.52) 3.5%,
+    rgba(0, 0, 0, 0) 16%,
+    rgba(0, 0, 0, 0) 100%);
+}
+
+.search__input {
+  position: relative;
+  z-index: 3;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+
+  color: var(--snow);
+  font: inherit;
+  font-size: clamp(18px, 1.3vw, 21px);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  caret-color: rgba(255, 255, 255, 0.9);
+}
+
+.search__input::placeholder {
+  color: rgba(247, 247, 249, 0.46);
+  transition: color 0.3s var(--ease);
+}
+
+.search__input::selection { background: rgba(255, 255, 255, 0.24); }
+
+.search__tools {
+  position: relative;
+  z-index: 3;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 3px;
+}
+
+.tool {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(47px, 3vw, 52px);
+  height: clamp(47px, 3vw, 52px);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.90);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tool svg {
+  display: block;
+  width: 23px;
+  height: 23px;
+}
+
+.tool:active { transform: scale(0.93); }
+
+.tool:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* активные кнопки: круг как у микрофона + цвета Google */
+.tool.is-active,
+.tool.is-listening {
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+/* пульсирует только микрофон */
+.tool.is-listening {
+  animation: mic-pulse 1.5s var(--ease) infinite;
+}
+
+.tool.is-active svg .gi-stroke,
+.tool.is-listening svg .gi-stroke {
+  stroke: url(#googleGrad);
+}
+
+.tool.is-active svg .gi-fill,
+.tool.is-listening svg .gi-fill {
+  fill: url(#googleGrad);
+}
+
+@keyframes mic-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 0 rgba(255, 255, 255, 0.25),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 0 8px rgba(255, 255, 255, 0),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  }
+}
+
+.search__hint { display: none; }
+
+.search:focus-within {
+  background-color: rgba(255, 255, 255, 0.02);
+  background-image:
+    radial-gradient(240px 240px at 0% 0%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 70%),
+    radial-gradient(260px 260px at 100% 100%, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 70%),
+    linear-gradient(152deg,
+      rgba(255, 255, 255, 0.09) 0%,
+      rgba(255, 255, 255, 0.02) 42%,
+      rgba(255, 255, 255, 0.05) 100%);
+
+  box-shadow:
+    0 40px 90px -40px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.10),
+    0 0 60px -20px rgba(255, 255, 255, 0.18),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.62),
+    inset 0 -1.5px 1px rgba(255, 255, 255, 0.22);
+}
+
+.search:focus-within .search__input::placeholder { color: rgba(247, 247, 249, 0.30); }
+
+/* ---------------------------------------------------------
+   Загрузка фото
+   --------------------------------------------------------- */
+
+.lenspop {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 25;
+  width: 100%;
+}
+
+.lenspop[hidden] { display: none; }
+
+.lenspop.lenspop--up {
+  top: auto;
+  bottom: calc(100% + 10px);
+}
+
+.lenspop__panel {
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--card-r);
+
+  background:
+    linear-gradient(152deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.02) 50%,
+      rgba(255, 255, 255, 0.04) 100%),
+    rgba(22, 23, 28, 0.88);
+
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+
+  box-shadow:
+    0 30px 80px -30px rgba(0, 0, 0, 0.70),
+    inset 0 1px 1px rgba(255, 255, 255, 0.30);
+}
+
+.lenspop__head {
+  margin: 0 2px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.lenspop__drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 170px;
+  padding: 20px;
+
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: calc(var(--card-r) - 6px);
+  background: rgba(255, 255, 255, 0.025);
+
+  text-align: center;
+  cursor: pointer;
+}
+
+.lenspop__drop[hidden] { display: none; }
+
+.lenspop__drop:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.lenspop__drop.is-drag {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.lenspop__icon {
+  width: 38px;
+  height: 38px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.lenspop__drop p {
+  margin: 0;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.lenspop__drop span {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.40);
+}
+
+.lenspop__preview {
+  margin-top: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.lenspop__preview[hidden] { display: none; }
+
+.lenspop__preview img {
+  display: block;
+  width: 100%;
+  height: clamp(140px, 18vh, 200px);
+  object-fit: contain;
+  background: rgba(0, 0, 0, 0.30);
+}
+
+.lenspop__fileactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.lenspop__fileactions[hidden] { display: none; }
+
+.lenspop__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.lenspop__btn {
+  padding: 9px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.lenspop__btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.lenspop__btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.lenspop__btn--primary {
+  background: #ffffff;
+  color: #0a0a0c;
+  border-color: #ffffff;
+  font-weight: 600;
+}
+
+.lenspop__hint {
+  margin: 9px 2px 0;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.aipop__input {
+  width: 100%;
+  min-height: 110px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+}
+
+.aipop__input:focus {
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.aipop__input::placeholder {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+/* ---------------------------------------------------------
+   Ссылки
+   --------------------------------------------------------- */
+
+.links {
+  display: flex;
+  gap: 6px;
+  align-self: flex-start;
+}
+
+.link {
+  --fade: 5px;
+  flex: 0 0 auto;
+  width: clamp(70px, 7vw, 92px);
+  min-width: 0;
+
+  background-color: rgba(6, 7, 10, 0.72);
+
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+
+  -webkit-mask-image: none;
+  mask-image: none;
+
+  height: clamp(48px, 5.8vh, 64px);
+  padding: 6px 4px;
+  border-radius: var(--card-r);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  text-decoration: none;
+  color: inherit;
+  animation-delay: 0.18s;
+}
+
+.link::before { display: none; }
+.link::after { display: none; }
+
+.link:focus-visible {
+  background-color: rgba(18, 19, 24, 0.82);
+  outline: 1px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 2px;
+}
+
+.link__logo {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: clamp(16px, 1.2vw, 19px);
+  height: clamp(16px, 1.2vw, 19px);
+}
+
+.link__logo img,
+.link__logo svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* логотипы ссылок — чисто белые */
+.link__logo img {
+  filter: brightness(0) invert(1);
+}
+
+.link__logo--drive svg {
+  filter: brightness(0) invert(1);
+}
+
+.link__logo--github { color: #ffffff; }
+
+.link__name {
+  position: relative;
+  z-index: 3;
+  max-width: 100%;
+
+  font-size: clamp(8.5px, 0.62vw, 9.5px);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgba(247, 247, 249, 0.9);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------------------------------------------------------
+   Поиск по открытым вкладкам
+   --------------------------------------------------------- */
+
+.tabsearch {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(60px, 12vh, 130px) 20px 20px;
+}
+
+.tabsearch[hidden] { display: none; }
+
+.tabsearch__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.tabsearch__panel {
+  position: relative;
+  width: min(620px, 100%);
+  max-height: min(70vh, 720px);
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: var(--card-r);
+  background:
+    linear-gradient(152deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.02) 45%,
+      rgba(255, 255, 255, 0.05) 100%),
+    rgba(24, 25, 30, 0.72);
+
+  -webkit-backdrop-filter: blur(40px) saturate(160%);
+  backdrop-filter: blur(40px) saturate(160%);
+
+  box-shadow:
+    0 50px 140px -40px rgba(0, 0, 0, 0.80),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.40);
+
+  animation: tabsearch-in 0.3s var(--ease);
+}
+
+@keyframes tabsearch-in {
+  from { opacity: 0; translate: 0 -10px; scale: 0.99; }
+  to   { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+.tabsearch__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tabsearch__icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: rgba(255, 255, 255, 0.60);
+}
+
+.tabsearch__input {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: #ffffff;
+  font: inherit;
+  font-size: 15px;
+}
+
+.tabsearch__input::placeholder { color: rgba(255, 255, 255, 0.40); }
+
+.tabsearch__esc {
+  font-family: inherit;
+  font-size: 10px;
+  padding: 4px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.50);
+}
+
+.tabsearch__list {
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.tabsearch__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 10px;
+
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.90);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.tabsearch__row.is-active {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.tabsearch__row:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.30);
+  outline-offset: -1px;
+}
+
+.tabsearch__favicon {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.tabsearch__favicon svg { width: 12px; height: 12px; }
+
+.tabsearch__favicon img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tabsearch__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tabsearch__title {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tabsearch__domain {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tabsearch__empty {
+  padding: 26px 16px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.40);
+}
+
+.tabsearch__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 10px 16px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.tabsearch__foot b {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.60);
+}
+
+.tabsearch__list::-webkit-scrollbar { width: 8px; }
+.tabsearch__list::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------------------------------------------------------
+   Адаптив
+   --------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  :root { --clock-size: min(46vw, 78vh); }
+
+  .google-brand img { width: clamp(192px, 19.5vw, 234px); }
+
+  .search-wrap { width: 100%; }
+
+  .search {
+    height: clamp(62px, 8.4vh, 78px);
+    padding: 0 clamp(18px, 2vw, 26px);
+    gap: 12px;
+  }
+
+  .g-logo { width: 24px; }
+  .search__input { font-size: clamp(15px, 1.3vw, 18px); }
+  .search__tools { gap: 4px; }
+  .tool { width: 40px; height: 40px; }
+  .tool svg { width: 21px; height: 21px; }
+}
+
+@media (max-width: 760px) {
+  body {
+    display: flow-root;
+    overflow: auto;
+  }
+
+  .topbar {
+    position: absolute;
+    top: 12px;
+    right: auto;
+    left: 12px;
+    gap: 2px;
+    padding: 3px;
+    --fade: 4px;
+  }
+
+  .topbar__btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .topbar__btn svg { width: 19px; height: 19px; }
+
+  .clock {
+    position: relative;
+    inset: auto;
+    width: calc(100% - 24px);
+    height: calc(100vw - 24px);
+    margin: 84px auto 0;
+    padding: 16px;
+  }
+
+  .left {
+    position: relative;
+    inset: auto;
+    padding: 18px 14px calc(28px + env(safe-area-inset-bottom));
+  }
+
+  .left__inner {
+    width: min(560px, 100%);
+    margin: 0 auto;
+  }
+
+  .google-brand img { width: 203px; }
+}
+
+@media (max-height: 700px) and (min-width: 761px) {
+  .topbar {
+    top: 10px;
+    gap: 2px;
+    padding: 3px;
+  }
+
+  .topbar__btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .topbar__btn svg { width: 18px; height: 18px; }
+}
+
+@media (max-width: 420px) {
+  .link { height: 62px; }
+  .search { height: 62px; }
+}
+
+@media (max-height: 620px) and (min-width: 761px) {
+  :root { --edge: 12px; }
+  .google-brand img { width: 172px; }
+  .search { height: 66px; }
+  .link { height: 64px; }
+}
+
+@media (max-height: 760px) {
+  .lenspop__drop { min-height: 130px; }
+  .lenspop__preview img { max-height: 140px; }
+}
+
+/* ---------------------------------------------------------
+   Доступность
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .blob,
+  .glass { animation: none !important; }
+
+  .tool.is-listening { animation: none !important; }
+
+  .glass { translate: none; scale: none; }
+  .glass::after { animation: none; }
+
+  .chroma { transition: none; }
+  .glare { transition: none; }
+
+  .hand,
+  .g-logo,
+  .tool,
+  .link { transition-duration: 0.01ms !important; }
+
+  .grain { display: none; }
+}
+
+::selection { background: rgba(255, 255, 255, 0.2); }
