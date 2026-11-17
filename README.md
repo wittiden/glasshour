@@ -24,7 +24,7 @@ The name combines **glass** and **hour** — a nod to the hourglass, the glass c
 
 After editing files, click **Reload** on `chrome://extensions`.
 
-Tab search requires the `tabs` permission, which is already declared in `manifest.json`. Window switching uses the `chrome.windows` API and needs no extra permission.
+Tab search requires the `tabs` permission, which is already declared in `manifest.json`. Window switching uses the `chrome.windows` API and needs no extra permission. Search predictions use Google Suggest, so the extension declares host access to `https://suggestqueries.google.com/*`; Chrome may ask you to allow this host on reload.
 
 Without the extension, `index.html` opens as a regular page, but `chrome://` buttons and Chrome window switching are unavailable.
 
@@ -39,6 +39,7 @@ Without the extension, `index.html` opens as a regular page, but `chrome://` but
 
 - **Google wordmark** — the official color logo with the brand typography, centered above the search bar. It is 30% larger, and the area around it is completely transparent; the logo sits above the background layers.
 - **Search bar** — the same width as the calendar and 30% shorter than before. It contains a white Google icon and four white tool buttons: open tabs, image search, AI Mode, and voice input.
+- **Search suggestions** — while you type, a glass dropdown with Google search predictions appears under the bar. Use ↑/↓ to move through the list, Enter to choose a suggestion, Esc to close it, or click a row. Requests are debounced and the previous request is cancelled when the query changes.
 - **Bottom glow** — a very thin, pale, semi-transparent glow in Google colors. It is clipped exactly to the search card, reaches the side edges, and follows the rounded corners.
 - **Image search** — the camera button opens an in-page glass panel with a drop zone, file picker, and preview. After a file is loaded, the drop zone is replaced by **Choose another photo** and **Clear**. The active button gets a static circular backing and Google-colored icon.
 - **AI Mode** — opens an in-page panel with a question field. **Ask** sends the query to Google AI Mode in a new tab. The active button uses the same static circular backing and Google colors.
@@ -63,11 +64,15 @@ Without the extension, `index.html` opens as a regular page, but `chrome://` but
 ### Controls
 
 - `/` or `Ctrl/⌘ + K` — focus the search bar.
-- `Enter` — run the search.
-- `Esc` — close the image/AI panel or clear the input.
-- `↑` / `↓` and `Enter` — navigate the open-tabs overlay.
+- `Enter` — run the search or choose the highlighted suggestion.
+- `Esc` — close search suggestions, the image/AI panel, or clear the input.
+- `↑` / `↓` and `Enter` — navigate suggestions and the open-tabs overlay.
 
 ## Screenshots
+
+### Search suggestions
+
+![Google search suggestions in Glasshour](docs/screenshots/glasshour-suggestions.jpg)
 
 ### Image search
 
@@ -102,6 +107,7 @@ Glasshour is designed for modest CPUs and low memory usage:
 - quick-link tiles have no `backdrop-filter` or masks;
 - the magnified code layer exists only on the clock, search bar, and calendar;
 - the number of code lines adapts to the screen size;
+- search predictions are requested only while typing, debounced by 110 ms, and the previous request is aborted when the query changes;
 - all hover effects are removed: no `pointermove`, no per-frame highlights, no card lift;
 - **0 active CSS animations at rest**; only the microphone pulses while listening.
 
@@ -113,6 +119,7 @@ Reference measurement in headless Chrome at 1920×1080: about **0.8 MB JS heap**
 - Chrome does not expose Alt+Tab z-order, so windows are switched in a stable order by window ID.
 - `chrome://extensions` and `chrome://settings` links only work in extension mode; regular `file://` pages cannot open them.
 - Tab search requires the `tabs` permission.
+- Search suggestions require host access to `https://suggestqueries.google.com/*`; if the host is blocked or offline, search still works without the dropdown.
 - The project targets Chrome/Chromium with Manifest V3.
 - The UI copy is currently in Russian; the code is structured so it can be translated.
 
@@ -128,6 +135,7 @@ Reference measurement in headless Chrome at 1920×1080: about **0.8 MB JS heap**
 | What | Where |
 | --- | --- |
 | Search provider | `script.js`, `SEARCH_URL` |
+| Search suggestions endpoint | `script.js`, `SUGGEST_URL` + `manifest.json` host permission |
 | AI Mode URL | `script.js`, `AI_URL` |
 | Clock size | `styles.css`, `--clock-size` |
 | Page edge spacing | `styles.css`, `--edge` |
@@ -160,7 +168,7 @@ README.md          — this file
 
 ## Privacy
 
-Glasshour collects no analytics and sends no data to third-party servers on its own. Network requests happen only when you act: Google search, AI Mode, uploading an image to Google image search, or opening a quick link. The tab list and window list are used locally by the corresponding buttons.
+Glasshour collects no analytics and sends no data to third-party servers on its own. Network requests happen only when you act: while typing a query, the current text is sent to Google Suggest for predictions; running a Google search, using AI Mode, uploading an image to Google image search, or opening a quick link also makes the expected request. The tab list and window list are used locally by the corresponding buttons.
 
 ## License
 
@@ -170,4 +178,4 @@ Copyright (c) 2026 Glasshour contributors.
 
 ## Version
 
-**1.13.0** — performance pass: fewer background-code DOM nodes, no full-page code blur, compositor-friendly clock hands, and a clock that pauses when hidden or offscreen. Visuals unchanged.
+**1.14.0** — Google search suggestions under the search bar with keyboard navigation, plus the previous rendering and performance improvements.

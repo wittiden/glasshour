@@ -126,6 +126,11 @@
           name="q"
           placeholder="Поиск"
           aria-label="Поиск в Google или адрес сайта"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded="false"
+          aria-controls="suggestList"
+          aria-haspopup="listbox"
           spellcheck="false"
           autocomplete="off"
           autocapitalize="off"
@@ -178,6 +183,10 @@
       </form>
 
       <span class="search__google-line" aria-hidden="true"></span>
+
+      <div class="suggest" id="searchSuggestions" hidden>
+        <div class="suggest__list" id="suggestList" role="listbox" aria-label="Поисковые подсказки"></div>
+      </div>
 
       <div class="lenspop" id="lensPop" hidden>
         <div class="lenspop__panel">

@@ -394,17 +394,47 @@
     const q = input.value.trim();
     if (!q) return;
 
+    closeSuggestions();
     navigate(q);
   });
 
   input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") {
+      if (suggestItems.length) {
+        e.preventDefault();
+        setSuggestActive(suggestActive + 1);
+      }
+      return;
+    }
+
+    if (e.key === "ArrowUp") {
+      if (suggestItems.length) {
+        e.preventDefault();
+        setSuggestActive(suggestActive < 0 ? suggestItems.length - 1 : suggestActive - 1);
+      }
+      return;
+    }
+
     if (e.key === "Enter") {
       e.preventDefault();
+
+      if (suggestActive >= 0 && suggestItems[suggestActive]) {
+        chooseSuggestion(suggestActive);
+        return;
+      }
+
+      closeSuggestions();
       form.requestSubmit();
       return;
     }
 
     if (e.key === "Escape") {
+      if (suggestPanel && !suggestPanel.hidden) {
+        e.preventDefault();
+        closeSuggestions();
+        return;
+      }
+
       if (input.value) {
         input.value = "";
       } else {
@@ -417,6 +447,210 @@
     if (e.target === input) return;
     if (e.target.closest(".search__tools")) return;
     input.focus();
+  });
+
+  /* ---------- Поисковые подсказки ---------- */
+
+  const SUGGEST_URL = "https://suggestqueries.google.com/complete/search?client=chrome&hl=ru&q=";
+  const MAX_SUGGESTIONS = 8;
+
+  const SUGGEST_ICON =
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+    '<circle cx="10.5" cy="10.5" r="6.2" stroke="currentColor" stroke-width="1.6"/>' +
+    '<path d="M15.2 15.2L20 20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' +
+    "</svg>";
+
+  const suggestPanel = document.getElementById("searchSuggestions");
+  const suggestList = document.getElementById("suggestList");
+
+  let suggestItems = [];
+  let suggestActive = -1;
+  let suggestTimer = null;
+  let suggestController = null;
+  let suggestSeq = 0;
+
+  function closeSuggestions() {
+    if (!suggestPanel) return;
+
+    suggestSeq += 1;
+    window.clearTimeout(suggestTimer);
+    suggestTimer = null;
+
+    if (suggestController) {
+      suggestController.abort();
+      suggestController = null;
+    }
+
+    suggestPanel.hidden = true;
+    suggestList.textContent = "";
+    suggestItems = [];
+    suggestActive = -1;
+
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
+  }
+
+  function renderSuggestions(items) {
+    if (!suggestPanel || !suggestList) return;
+
+    if (!items.length) {
+      closeSuggestions();
+      return;
+    }
+
+    // Подсказки и меню фото/AI занимают одно место под строкой поиска.
+    if (typeof closeLensPop === "function") closeLensPop();
+    if (typeof closeAiPop === "function") closeAiPop();
+
+    suggestItems = items;
+    suggestActive = -1;
+    suggestList.textContent = "";
+    input.removeAttribute("aria-activedescendant");
+
+    const query = input.value.trim();
+    const needle = query.toLowerCase();
+    const fragment = document.createDocumentFragment();
+
+    items.forEach((text, index) => {
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "suggest__row";
+      row.id = "suggest-" + index;
+      row.setAttribute("role", "option");
+      row.setAttribute("aria-selected", "false");
+
+      const icon = document.createElement("span");
+      icon.className = "suggest__icon";
+      icon.innerHTML = SUGGEST_ICON;
+
+      const label = document.createElement("span");
+      label.className = "suggest__text";
+
+      const match = needle ? text.toLowerCase().indexOf(needle) : -1;
+
+      if (match >= 0) {
+        label.append(text.slice(0, match));
+        const strong = document.createElement("b");
+        strong.textContent = text.slice(match, match + query.length);
+        label.append(strong, text.slice(match + query.length));
+      } else {
+        label.textContent = text;
+      }
+
+      row.append(icon, label);
+      row.addEventListener("pointerdown", (e) => e.preventDefault());
+      row.addEventListener("click", () => chooseSuggestion(index));
+      fragment.appendChild(row);
+    });
+
+    suggestList.appendChild(fragment);
+    suggestPanel.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+  }
+
+  function setSuggestActive(index) {
+    if (!suggestItems.length) return;
+
+    suggestActive = (index + suggestItems.length) % suggestItems.length;
+
+    [...suggestList.children].forEach((row, i) => {
+      const on = i === suggestActive;
+      row.classList.toggle("is-active", on);
+      row.setAttribute("aria-selected", String(on));
+    });
+
+    input.setAttribute("aria-activedescendant", "suggest-" + suggestActive);
+    suggestList.children[suggestActive]?.scrollIntoView({ block: "nearest" });
+  }
+
+  function chooseSuggestion(index) {
+    const value = suggestItems[index];
+    if (!value) return;
+
+    input.value = value;
+    closeSuggestions();
+    navigate(value);
+  }
+
+  function fetchSuggestions(query) {
+    if (!query || typeof fetch !== "function") {
+      closeSuggestions();
+      return;
+    }
+
+    const seq = ++suggestSeq;
+
+    if (suggestController) suggestController.abort();
+    suggestController = new AbortController();
+
+    fetch(SUGGEST_URL + encodeURIComponent(query), {
+      signal: suggestController.signal,
+      credentials: "omit",
+      cache: "no-store",
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (seq !== suggestSeq || input.value.trim() !== query) return;
+
+        suggestController = null;
+
+        const raw = Array.isArray(data?.[1]) ? data[1] : [];
+        const items = [];
+        const seen = new Set();
+
+        for (const value of raw) {
+          if (typeof value !== "string") continue;
+
+          const text = value.trim();
+          if (!text || seen.has(text)) continue;
+
+          seen.add(text);
+          items.push(text);
+
+          if (items.length >= MAX_SUGGESTIONS) break;
+        }
+
+        renderSuggestions(items);
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") closeSuggestions();
+      });
+  }
+
+  input.addEventListener("input", () => {
+    const query = input.value.trim();
+
+    window.clearTimeout(suggestTimer);
+
+    if (!query) {
+      closeSuggestions();
+      return;
+    }
+
+    suggestTimer = window.setTimeout(() => fetchSuggestions(query), 110);
+  });
+
+  input.addEventListener("focus", () => {
+    if (typeof closeLensPop === "function") closeLensPop();
+    if (typeof closeAiPop === "function") closeAiPop();
+
+    const query = input.value.trim();
+    if (query) fetchSuggestions(query);
+  });
+
+  input.addEventListener("blur", () => {
+    window.setTimeout(() => {
+      if (!suggestPanel || suggestPanel.hidden) return;
+      if (document.activeElement === input) return;
+      if (suggestPanel.contains(document.activeElement)) return;
+      closeSuggestions();
+    }, 100);
+  });
+
+  document.addEventListener("pointerdown", (e) => {
+    if (!suggestPanel || suggestPanel.hidden) return;
+    if (e.target === input || suggestPanel.contains(e.target)) return;
+    closeSuggestions();
   });
 
   /* ---------- Голосовой ввод ---------- */
@@ -618,6 +852,8 @@
   function openTabSearch() {
     if (!tabsearch) return;
 
+    closeSuggestions();
+
     tabsearch.hidden = false;
     tabsearchInput.value = "";
     tabsearchList.textContent = "";
@@ -749,6 +985,7 @@
   function openLensPop() {
     if (!lensPop || !lensBtn) return;
 
+    closeSuggestions();
     closeAiPop();
 
     positionMenu(lensPop, lensBtn);
@@ -784,6 +1021,7 @@
   function openAiPop() {
     if (!aiPop || !aiBtn) return;
 
+    closeSuggestions();
     closeLensPop();
 
     positionMenu(aiPop, aiBtn);
@@ -920,6 +1158,11 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
+
+    if (suggestPanel && !suggestPanel.hidden) {
+      e.preventDefault();
+      closeSuggestions();
+    }
 
     if (lensPop && !lensPop.hidden) {
       e.preventDefault();
