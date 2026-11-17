@@ -32,7 +32,7 @@ Without the extension, `index.html` opens as a regular page, but `chrome://` but
 
 ### Time and date
 
-- **iOS-style analog clock** — a square glass panel with the same edges as the other cards and no inner outline. Ticks start at the panel edges, numerals are 12 / 3 / 6 / 9, hour and minute hands are thick, and the thin second hand has a tail and a center dot. The clock updates once per second.
+- **iOS-style analog clock** — a square glass panel with the same edges as the other cards and no inner outline. Ticks start at the panel edges, numerals are 12 / 3 / 6 / 9, hour and minute hands are thick, and the thin second hand has a tail and a center dot. The clock updates once per second. Above the 6 numeral, centered between the dial center and the 6, the current time is shown in small digital numerals.
 - **Calendar** — a wide card below the search bar: the current weekday, day, month, and year on the left; a full-month grid with today highlighted on the right. Quick links sit below the calendar.
 
 ### Search
@@ -92,6 +92,11 @@ Without the extension, `index.html` opens as a regular page, but `chrome://` but
 Glasshour is designed for modest CPUs and low memory usage:
 
 - the clock updates **once per second** instead of 60 times via `requestAnimationFrame`;
+- the hour hand and digital time update **once per minute**, while the minute and second hands update once per second;
+- the clock completely stops when the tab is hidden or the clock is mostly out of view;
+- clock hands are promoted to compositor layers, so their rotation does not repaint the whole glass card;
+- the background code uses about **40% fewer DOM elements** and **45% fewer spans** — plain identifiers and punctuation no longer get wrapper elements;
+- the full-page 0.4 px blur on the code background was removed;
 - the background is static: no infinite animations and no heavy light-blob blur;
 - glass uses a 20 px blur instead of 34 px;
 - quick-link tiles have no `backdrop-filter` or masks;
@@ -100,7 +105,7 @@ Glasshour is designed for modest CPUs and low memory usage:
 - all hover effects are removed: no `pointermove`, no per-frame highlights, no card lift;
 - **0 active CSS animations at rest**; only the microphone pulses while listening.
 
-Reference measurement in headless Chrome at 1920×1080: about **1 MB JS heap** and **0 running animations** after load. Results vary by system.
+Reference measurement in headless Chrome at 1920×1080: about **0.8 MB JS heap**, roughly **1,800 DOM elements**, and **0 running animations** after load. Results vary by system.
 
 ## Limitations
 
@@ -165,4 +170,4 @@ Copyright (c) 2026 Glasshour contributors.
 
 ## Version
 
-**1.11.0** — Glasshour naming, refreshed documentation, Chrome window switching, the current search styling, README screenshots, and MIT licensing.
+**1.13.0** — performance pass: fewer background-code DOM nodes, no full-page code blur, compositor-friendly clock hands, and a clock that pauses when hidden or offscreen. Visuals unchanged.

@@ -85,7 +85,6 @@ body {
   pointer-events: none;
   user-select: none;
   opacity: 0.74;
-  filter: blur(0.4px);
 }
 
 .code__grid {
@@ -103,7 +102,7 @@ body {
   font-size: clamp(10px, 0.82vw, 12.5px);
   line-height: 1.85;
   letter-spacing: 0.02em;
-  color: rgba(169, 183, 198, 0.55);
+  color: rgba(169, 183, 198, 0.60);
 }
 
 /* палитра Darcula / PyCharm */
@@ -112,8 +111,6 @@ body {
 .tok-num     { color: rgba(104, 151, 187, 0.95); }
 .tok-fn      { color: rgba(255, 198, 109, 0.90); }
 .tok-comment { color: rgba(122, 126, 133, 0.85); }
-.tok-op      { color: rgba(169, 183, 198, 0.70); }
-.tok-name    { color: rgba(169, 183, 198, 0.60); }
 
 .code-veil {
   position: fixed;
@@ -159,7 +156,6 @@ body {
   top: -14%;
   right: -6%;
   background: radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.07) 44%, rgba(255, 255, 255, 0) 70%);
-  animation: drift-a 28s var(--ease) infinite alternate;
 }
 
 .blob--b {
@@ -168,7 +164,6 @@ body {
   top: 38%;
   right: 6%;
   background: radial-gradient(circle at 58% 42%, rgba(214, 218, 231, 0.26), rgba(160, 164, 180, 0.08) 46%, rgba(160, 164, 180, 0) 72%);
-  animation: drift-b 36s var(--ease) infinite alternate;
 }
 
 .blob--c {
@@ -177,7 +172,6 @@ body {
   bottom: -14%;
   left: 2%;
   background: radial-gradient(circle at 46% 52%, rgba(198, 202, 214, 0.24), rgba(120, 124, 138, 0.07) 48%, rgba(120, 124, 138, 0) 72%);
-  animation: drift-c 40s var(--ease) infinite alternate;
 }
 
 .blob--d {
@@ -186,7 +180,6 @@ body {
   top: 8%;
   left: 30%;
   background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.19), rgba(255, 255, 255, 0) 70%);
-  animation: drift-d 32s var(--ease) infinite alternate;
 }
 
 /* диагональная полоса света — преломляется в стекле */
@@ -202,37 +195,9 @@ body {
     rgba(255, 255, 255, 0.05) 62%,
     rgba(255, 255, 255, 0) 100%);
   rotate: -26deg;
-  animation: drift-e 44s var(--ease) infinite alternate;
 }
 
-@keyframes drift-a {
-  0%   { transform: translate3d(0, 0, 0)      scale(1)   rotate(0deg); }
-  50%  { transform: translate3d(-5%, 6%, 0)   scale(1.08) rotate(10deg); }
-  100% { transform: translate3d(4%, -4%, 0)   scale(0.95) rotate(-7deg); }
-}
-@keyframes drift-b {
-  0%   { transform: translate3d(0, 0, 0)      scale(1); }
-  60%  { transform: translate3d(-8%, -7%, 0)  scale(1.14); }
-  100% { transform: translate3d(5%, 5%, 0)    scale(0.93); }
-}
-@keyframes drift-c {
-  0%   { transform: translate3d(0, 0, 0)      scale(1); }
-  50%  { transform: translate3d(7%, -5%, 0)   scale(1.1); }
-  100% { transform: translate3d(-4%, 4%, 0)   scale(0.97); }
-}
-@keyframes drift-d {
-  0%   { transform: translate3d(0, 0, 0)      scale(1); }
-  100% { transform: translate3d(6%, 8%, 0)    scale(1.16); }
-}
-@keyframes drift-e {
-  0%   { transform: translate3d(-4%, 3%, 0); }
-  100% { transform: translate3d(4%, -4%, 0); }
-}
-
-/* Лёгкий режим: фон статичный, без постоянных анимаций и blend-режимов */
-.ambient .blob {
-  animation: none !important;
-}
+/* Свет за стеклом статичный: без постоянных анимаций. */
 
 /* ---------------------------------------------------------
    Плёнка
@@ -662,6 +627,7 @@ body {
   transform-origin: 50% 100%;
   transform: translateX(-50%) rotate(var(--angle, 0deg));
   border-radius: 999px;
+  will-change: transform;
 }
 
 .hand--hour {
@@ -724,6 +690,26 @@ body {
   border-radius: 50%;
   background: var(--g-yellow);
   box-shadow: 0 0 8px rgba(251, 188, 5, 0.80);
+}
+
+/* цифровое время внизу циферблата — на месте модели часов */
+.clock__digital {
+  position: absolute;
+  left: 50%;
+  top: 67%;
+  z-index: 8;
+  translate: -50% -50%;
+
+  font-family: "Google Sans", "Roboto", "Segoe UI", Arial, sans-serif;
+  font-size: clamp(12px, 2cqw, 18px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  color: rgba(250, 250, 252, 0.60);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  user-select: none;
 }
 
 /* отражение на стекле циферблата */

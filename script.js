@@ -11,6 +11,7 @@
   const hourHand = document.getElementById("hourHand");
   const minuteHand = document.getElementById("minuteHand");
   const secondHand = document.getElementById("secondHand");
+  const digitalClock = document.getElementById("digitalClock");
 
   const QUARTER_COLORS = {
     0: "is-blue",    // 12
@@ -164,11 +165,14 @@
       } else if (match[4]) {
         const isCall = /^\s*\(/.test(code.slice(CODE_TOKEN_RE.lastIndex));
         const isDefinition = /(?:def|class)\s+$/.test(code.slice(0, match.index));
-        html += `<span class="${isCall || isDefinition ? "tok-fn" : "tok-name"}">${escapeCode(token)}</span>`;
-      } else if (match[5]) {
-        html += token;
+
+        // Обычные имена не оборачиваем: они наследуют базовый цвет строки.
+        html += isCall || isDefinition
+          ? `<span class="tok-fn">${escapeCode(token)}</span>`
+          : escapeCode(token);
       } else {
-        html += `<span class="tok-op">${escapeCode(token)}</span>`;
+        // Пробелы и пунктуация тоже не создают лишних DOM-узлов.
+        html += escapeCode(token);
       }
 
       last = CODE_TOKEN_RE.lastIndex;
@@ -282,21 +286,84 @@
 
   const angle = (el, deg) => el.style.setProperty("--angle", deg.toFixed(3) + "deg");
 
-  // Часы обновляются раз в секунду, а не 60 раз — это главный выигрыш по CPU.
+  // Часы обновляются раз в секунду и полностью останавливаются,
+  // когда вкладка скрыта — в фоне не тратятся CPU и батарея.
+  let clockTimer = null;
+  let clockInView = true;
+  let lastMinute = -1;
+
+  function canRunClock() {
+    return !document.hidden && clockInView;
+  }
+
   function tickClock() {
+    if (!canRunClock()) {
+      clockTimer = null;
+      return;
+    }
+
     const now = new Date();
     const sec = now.getSeconds();
-    const min = now.getMinutes() + sec / 60;
-    const hour = (now.getHours() % 12) + min / 60;
+    const minute = now.getMinutes();
+    const min = minute + sec / 60;
 
-    angle(hourHand, hour * 30);
+    // Часовая рука двигается раз в минуту: за секунду она смещается
+    // на сотые доли градуса, поэтому пересчитывать её чаще не нужно.
+    if (minute !== lastMinute) {
+      lastMinute = minute;
+
+      angle(hourHand, (now.getHours() % 12) * 30 + minute * 0.5);
+
+      if (digitalClock) {
+        const label = String(now.getHours()).padStart(2, "0") + ":" +
+          String(minute).padStart(2, "0");
+
+        if (digitalClock.textContent !== label) {
+          digitalClock.textContent = label;
+          clockEl.setAttribute("aria-label", "Текущее время: " + label);
+        }
+      }
+    }
+
     angle(minuteHand, min * 6);
     angle(secondHand, sec * 6);
 
-    window.setTimeout(tickClock, 1000 - (Date.now() % 1000));
+    clockTimer = window.setTimeout(tickClock, 1000 - (Date.now() % 1000));
   }
 
-  tickClock();
+  function stopClock() {
+    if (clockTimer !== null) {
+      window.clearTimeout(clockTimer);
+      clockTimer = null;
+    }
+  }
+
+  function startClock() {
+    if (clockTimer !== null || !canRunClock()) return;
+    tickClock();
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stopClock();
+    else startClock();
+  });
+
+  // На мобильных часах можно уйти вниз по странице — вне экрана
+  // стрелки не пересчитываются, пока часы снова не появятся.
+  if ("IntersectionObserver" in window && clockEl) {
+    const clockObserver = new IntersectionObserver((entries) => {
+      clockInView = entries.some(
+        (entry) => entry.isIntersecting && entry.intersectionRatio >= 0.1,
+      );
+
+      if (clockInView) startClock();
+      else stopClock();
+    }, { threshold: [0, 0.1] });
+
+    clockObserver.observe(clockEl);
+  }
+
+  startClock();
 
   /* ---------- Поиск ---------- */
 
