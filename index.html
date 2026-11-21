@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#24252b">
   <meta name="color-scheme" content="dark">
-  <title>Glasshour — новая вкладка</title>
+  <title>Glasshour — New Tab</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233c3d45'/%3E%3Cstop offset='1' stop-color='%23101115'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='17' fill='url(%23g)'/%3E%3Crect x='1' y='1' width='62' height='62' rx='16' fill='none' stroke='%23ffffff' stroke-opacity='.32'/%3E%3Ccircle cx='32' cy='32' r='13' fill='none' stroke='%23ffffff' stroke-opacity='.82' stroke-width='2.4'/%3E%3Cpath d='M32 24.5v8.2l5.4 3.1' fill='none' stroke='%23ffffff' stroke-opacity='.82' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- Фирменный градиент Google для активных иконок -->
   <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
     <defs>
       <linearGradient id="googleGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="24">
@@ -23,13 +22,11 @@
     </defs>
   </svg>
 
-  <!-- Фон: python-код и бинарный шум под тёмно-серой вуалью -->
   <div class="code" aria-hidden="true">
     <div class="code__grid" id="codeGrid"></div>
   </div>
   <div class="code-veil" aria-hidden="true"></div>
 
-  <!-- Свет за стеклом -->
   <div class="ambient" aria-hidden="true">
     <span class="blob blob--a"></span>
     <span class="blob blob--b"></span>
@@ -38,19 +35,17 @@
     <span class="blob blob--e"></span>
   </div>
 
-  <!-- Затемнение страницы -->
   <div class="dim" aria-hidden="true"></div>
 
   <div class="grain" aria-hidden="true"></div>
   <div class="vignette" aria-hidden="true"></div>
 
-  <!-- Верхний блок Chrome: расширения и настройки -->
-  <nav class="topbar glass" aria-label="Быстрые действия Chrome">
+  <nav class="topbar glass" aria-label="Chrome quick actions">
     <span class="chroma" aria-hidden="true"></span>
     <span class="glare" aria-hidden="true"></span>
 
     <button class="topbar__btn" type="button" id="extensionsBtn"
-            title="Управление расширениями" aria-label="Управление расширениями">
+            title="Manage extensions" aria-label="Manage extensions">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M19.44 7.85c-.05.32.06.65.29.88l1.57 1.57c.47.47.7 1.08.7 1.7s-.24 1.23-.7 1.7l-1.61 1.61a.98.98 0 0 1-.84.28c-.47-.07-.8-.48-.97-.93a2.5 2.5 0 1 0-3.21 3.22c.44.16.85.5.92.96a.98.98 0 0 1-.27.84l-1.61 1.61a2.4 2.4 0 0 1-1.71.71 2.4 2.4 0 0 1-1.7-.71l-1.57-1.57a1.03 1.03 0 0 0-.88-.29c-.49.07-.84.5-1.02.97a2.5 2.5 0 1 1-3.24-3.24c.47-.18.9-.53.97-1.02a1.03 1.03 0 0 0-.29-.88L2.7 13.7a2.4 2.4 0 0 1-.7-1.7c0-.62.24-1.23.7-1.7L4.23 8.77c.24-.24.58-.35.92-.3.51.08.88.53 1.07 1.01a2.5 2.5 0 1 0 3.26-3.26c-.48-.2-.93-.56-1.01-1.07a1.03 1.03 0 0 1 .3-.92l1.53-1.53a2.4 2.4 0 0 1 1.7-.7c.62 0 1.23.24 1.7.7l1.57 1.57c.23.23.56.34.88.29.49-.07.84-.5 1.02-.97a2.5 2.5 0 1 1 3.24 3.24c-.47.18-.9.53-.97 1.02Z"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -58,15 +53,15 @@
     </button>
 
     <button class="topbar__btn" type="button" id="settingsBtn"
-            title="Настройки Chrome" aria-label="Настройки Chrome">
+            title="Chrome settings" aria-label="Chrome settings">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.48.48 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.01-1.58ZM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2Z"/>
       </svg>
     </button>
 
     <button class="topbar__btn" type="button" id="windowsBtn" disabled
-            title="Открыто одно окно Chrome"
-            aria-label="Открыто одно окно Chrome">
+            title="One Chrome window open"
+            aria-label="One Chrome window open">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <rect x="3.2" y="4.5" width="17.6" height="15" rx="2.6"
               stroke="currentColor" stroke-width="1.5"/>
@@ -78,8 +73,7 @@
     </button>
   </nav>
 
-  <!-- Часы: квадратная панель справа -->
-  <main class="clock glass" id="clock" aria-label="Текущее время">
+  <main class="clock glass" id="clock" aria-label="Current time">
     <span class="chroma" aria-hidden="true"></span>
     <span class="glare" aria-hidden="true"></span>
 
@@ -99,7 +93,6 @@
     </div>
   </main>
 
-  <!-- Левая половина: знак Google, поиск, календарь, ссылки -->
   <aside class="left">
     <div class="left__inner">
 
@@ -124,8 +117,8 @@
           class="search__input"
           type="text"
           name="q"
-          placeholder="Поиск"
-          aria-label="Поиск в Google или адрес сайта"
+          placeholder="Search"
+          aria-label="Search Google or type a URL"
           role="combobox"
           aria-autocomplete="list"
           aria-expanded="false"
@@ -139,7 +132,7 @@
 
         <div class="search__tools">
           <button class="tool" type="button" id="tabsBtn"
-                  title="Поиск по открытым вкладкам" aria-label="Поиск по открытым вкладкам">
+                  title="Search open tabs" aria-label="Search open tabs">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <rect x="8" y="3.5" width="12.5" height="12.5" rx="2.5"
                     stroke="currentColor" stroke-width="1.5"/>
@@ -151,7 +144,7 @@
           </button>
 
           <button class="tool" type="button" id="lensBtn"
-                  title="Поиск по картинке" aria-label="Поиск по картинке"
+                  title="Search by image" aria-label="Search by image"
                   aria-haspopup="dialog" aria-expanded="false" aria-controls="lensPop">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path class="gi-stroke"
@@ -171,7 +164,7 @@
           </button>
 
           <button class="tool" type="button" id="micBtn"
-                  title="Голосовой ввод" aria-label="Голосовой ввод" aria-pressed="false">
+                  title="Voice search" aria-label="Voice search" aria-pressed="false">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <rect class="gi-stroke" x="9" y="3.2" width="6" height="11" rx="3"
                     stroke="currentColor" stroke-width="1.5"/>
@@ -185,38 +178,38 @@
       <span class="search__google-line" aria-hidden="true"></span>
 
       <div class="suggest" id="searchSuggestions" hidden>
-        <div class="suggest__list" id="suggestList" role="listbox" aria-label="Поисковые подсказки"></div>
+        <div class="suggest__list" id="suggestList" role="listbox" aria-label="Search suggestions"></div>
       </div>
 
       <div class="lenspop" id="lensPop" hidden>
         <div class="lenspop__panel">
-          <div class="lenspop__head">Поиск по картинке</div>
+          <div class="lenspop__head">Search by image</div>
 
           <div class="lenspop__drop" id="lensDrop" role="button" tabindex="0"
-               aria-label="Перетащите фото или нажмите, чтобы выбрать файл">
+               aria-label="Drop a photo here or click to choose a file">
             <svg class="lenspop__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <rect x="3" y="4.5" width="18" height="15" rx="3" stroke="currentColor" stroke-width="1.5"/>
               <circle cx="9" cy="9.5" r="1.8" stroke="currentColor" stroke-width="1.5"/>
               <path d="M4.5 17l4.7-4.7 3.8 3.8 2.6-2.6 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <p>Перетащите фото сюда</p>
-            <span>или нажмите, чтобы выбрать файл</span>
+            <p>Drop a photo here</p>
+            <span>or click to choose a file</span>
           </div>
 
           <div class="lenspop__preview" id="lensPreview" hidden>
-            <img id="lensImage" alt="Предпросмотр выбранного фото">
+            <img id="lensImage" alt="Selected photo preview">
           </div>
 
           <div class="lenspop__fileactions" id="lensFileActions" hidden>
-            <button type="button" class="lenspop__btn" id="lensChange">Выбрать другое фото</button>
-            <button type="button" class="lenspop__btn" id="lensClear">Очистить</button>
+            <button type="button" class="lenspop__btn" id="lensChange">Choose another photo</button>
+            <button type="button" class="lenspop__btn" id="lensClear">Clear</button>
           </div>
 
           <input type="file" id="lensFile" accept="image/*" hidden>
 
           <div class="lenspop__actions">
-            <button type="button" class="lenspop__btn" id="lensCancel">Отмена</button>
-            <button type="button" class="lenspop__btn lenspop__btn--primary" id="lensSubmit" disabled>Искать в Google</button>
+            <button type="button" class="lenspop__btn" id="lensCancel">Cancel</button>
+            <button type="button" class="lenspop__btn lenspop__btn--primary" id="lensSubmit" disabled>Search in Google</button>
           </div>
 
           <p class="lenspop__hint">JPG, PNG, WebP, GIF</p>
@@ -228,111 +221,113 @@
           <div class="lenspop__head">AI Mode</div>
 
           <textarea id="aiInput" class="aipop__input" rows="4"
-                    placeholder="Спросите AI Mode…" aria-label="Вопрос для AI Mode"></textarea>
+                    placeholder="Ask AI Mode…" aria-label="Question for AI Mode"></textarea>
 
           <div class="lenspop__actions">
-            <button type="button" class="lenspop__btn" id="aiCancel">Отмена</button>
-            <button type="button" class="lenspop__btn lenspop__btn--primary" id="aiSubmit">Спросить</button>
+            <button type="button" class="lenspop__btn" id="aiCancel">Cancel</button>
+            <button type="button" class="lenspop__btn lenspop__btn--primary" id="aiSubmit">Ask</button>
           </div>
 
-          <p class="lenspop__hint">Запрос откроется в Google AI Mode в новой вкладке</p>
+          <p class="lenspop__hint">The request will open in Google AI Mode in a new tab</p>
         </div>
       </div>
       </div>
 
-      <section class="calendar glass" aria-label="Календарь">
+      <section class="calendar glass" aria-label="Calendar">
         <span class="chroma" aria-hidden="true"></span>
         <span class="glare" aria-hidden="true"></span>
 
         <div class="calendar__today">
-          <span class="calendar__weekday" id="calWeekday">ПН</span>
-          <span class="calendar__day" id="calDay">16</span>
-          <span class="calendar__month" id="calMonth">ноябрь</span>
+          <span class="calendar__weekday" id="calWeekday">SAT</span>
+          <span class="calendar__day" id="calDay">21</span>
+          <span class="calendar__month" id="calMonth">November</span>
           <span class="calendar__year" id="calYear">2026</span>
         </div>
 
         <div class="calendar__monthview">
-          <div class="calendar__title" id="calTitle">ноябрь 2026</div>
+          <div class="calendar__title" id="calTitle">November 2026</div>
           <div class="calendar__weekdays" aria-hidden="true">
-            <span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span>
+            <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
           </div>
           <div class="calendar__grid" id="calGrid" aria-hidden="true"></div>
         </div>
       </section>
 
-      <nav class="links" aria-label="Быстрые ссылки">
+      <nav class="links" aria-label="Quick links">
 
-        <a class="link glass" href="https://lms.bsuir.by/" rel="noreferrer">
+        <div class="link glass link--placeholder">
           <span class="chroma" aria-hidden="true"></span>
           <span class="glare" aria-hidden="true"></span>
-          <span class="link__logo link__logo--tile">
-            <img src="assets/bsuir-white.png" alt="">
-          </span>
-          <span class="link__name">BSUIR LMS</span>
-        </a>
-
-        <a class="link glass" href="https://github.com/wittiden" rel="noreferrer">
-          <span class="chroma" aria-hidden="true"></span>
-          <span class="glare" aria-hidden="true"></span>
-          <span class="link__logo link__logo--github">
-            <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M16 0C7.16 0 0 7.16 0 16C0 23.08 4.58 29.06 10.94 31.18C11.74 31.32 12.04 30.84 12.04 30.42C12.04 30.04 12.02 28.78 12.02 27.44C8 28.18 6.96 26.46 6.64 25.56C6.46 25.1 5.68 23.68 5 23.3C4.44 23 3.64 22.26 4.98 22.24C6.24 22.22 7.14 23.4 7.44 23.88C8.88 26.3 11.18 25.62 12.1 25.2C12.24 24.16 12.66 23.46 13.12 23.06C9.56 22.66 5.84 21.28 5.84 15.16C5.84 13.42 6.46 11.98 7.48 10.86C7.32 10.46 6.76 8.82 7.64 6.62C7.64 6.62 8.98 6.2 12.04 8.26C13.32 7.9 14.68 7.72 16.04 7.72C17.4 7.72 18.76 7.9 20.04 8.26C23.1 6.18 24.44 6.62 24.44 6.62C25.32 8.82 24.76 10.46 24.6 10.86C25.62 11.98 26.24 13.4 26.24 15.16C26.24 21.3 22.5 22.66 18.94 23.06C19.52 23.56 20.02 24.52 20.02 26.02C20.02 28.16 20 29.88 20 30.42C20 30.84 20.3 31.34 21.1 31.18C27.42 29.06 32 23.06 32 16C32 7.16 24.84 0 16 0V0Z"/>
+          <span class="link__logo link__logo--placeholder">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M10.2 13.8a3.6 3.6 0 0 0 5.1 0l2.8-2.8a3.6 3.6 0 0 0-5.1-5.1l-1.3 1.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M13.8 10.2a3.6 3.6 0 0 0-5.1 0l-2.8 2.8a3.6 3.6 0 0 0 5.1 5.1l1.3-1.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </span>
-          <span class="link__name">GitHub</span>
-        </a>
+          <span class="link__name">Link 1</span>
+        </div>
 
-        <a class="link glass" href="https://chat.deepseek.com/" rel="noreferrer">
+        <div class="link glass link--placeholder">
           <span class="chroma" aria-hidden="true"></span>
           <span class="glare" aria-hidden="true"></span>
-          <span class="link__logo link__logo--deepseek">
-            <img src="assets/deepseek-favicon.png" alt="">
-          </span>
-          <span class="link__name">DeepSeek</span>
-        </a>
-
-        <a class="link glass" href="https://drive.google.com/drive/home" rel="noreferrer">
-          <span class="chroma" aria-hidden="true"></span>
-          <span class="glare" aria-hidden="true"></span>
-          <span class="link__logo link__logo--drive">
-            <svg viewBox="0 0 87.3 78" aria-hidden="true">
-              <path fill="#0066da" d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5z"/>
-              <path fill="#00ac47" d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3L1.2 48.5C.4 49.9 0 51.45 0 53h27.5z"/>
-              <path fill="#ea4335" d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8l5.85 11.5z"/>
-              <path fill="#00832d" d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.45-4.5 1.2z"/>
-              <path fill="#2684fc" d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z"/>
-              <path fill="#ffba00" d="M73.4 26.5l-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z"/>
+          <span class="link__logo link__logo--placeholder">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M10.2 13.8a3.6 3.6 0 0 0 5.1 0l2.8-2.8a3.6 3.6 0 0 0-5.1-5.1l-1.3 1.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M13.8 10.2a3.6 3.6 0 0 0-5.1 0l-2.8 2.8a3.6 3.6 0 0 0 5.1 5.1l1.3-1.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </span>
-          <span class="link__name">Drive</span>
-        </a>
+          <span class="link__name">Link 2</span>
+        </div>
+
+        <div class="link glass link--placeholder">
+          <span class="chroma" aria-hidden="true"></span>
+          <span class="glare" aria-hidden="true"></span>
+          <span class="link__logo link__logo--placeholder">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M10.2 13.8a3.6 3.6 0 0 0 5.1 0l2.8-2.8a3.6 3.6 0 0 0-5.1-5.1l-1.3 1.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M13.8 10.2a3.6 3.6 0 0 0-5.1 0l-2.8 2.8a3.6 3.6 0 0 0 5.1 5.1l1.3-1.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="link__name">Link 3</span>
+        </div>
+
+        <div class="link glass link--placeholder">
+          <span class="chroma" aria-hidden="true"></span>
+          <span class="glare" aria-hidden="true"></span>
+          <span class="link__logo link__logo--placeholder">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M10.2 13.8a3.6 3.6 0 0 0 5.1 0l2.8-2.8a3.6 3.6 0 0 0-5.1-5.1l-1.3 1.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M13.8 10.2a3.6 3.6 0 0 0-5.1 0l-2.8 2.8a3.6 3.6 0 0 0 5.1 5.1l1.3-1.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="link__name">Link 4</span>
+        </div>
 
       </nav>
 
     </div>
   </aside>
 
-  <!-- Поиск по открытым вкладкам -->
   <div class="tabsearch" id="tabsearch" hidden>
     <div class="tabsearch__backdrop" data-tabsearch-close></div>
 
-    <section class="tabsearch__panel" role="dialog" aria-modal="true" aria-label="Поиск по открытым вкладкам">
+    <section class="tabsearch__panel" role="dialog" aria-modal="true" aria-label="Search open tabs">
       <div class="tabsearch__head">
         <svg class="tabsearch__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <circle cx="11" cy="11" r="6.2" stroke="currentColor" stroke-width="1.6"/>
           <path d="M15.6 15.6L20 20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
         </svg>
         <input id="tabsearchInput" class="tabsearch__input" type="text"
-               placeholder="Поиск по открытым вкладкам…" autocomplete="off" spellcheck="false"
-               aria-label="Поиск по открытым вкладкам">
+               placeholder="Search open tabs…" autocomplete="off" spellcheck="false"
+               aria-label="Search open tabs">
         <kbd class="tabsearch__esc">Esc</kbd>
       </div>
 
-      <div class="tabsearch__list" id="tabsearchList" role="listbox" aria-label="Открытые вкладки"></div>
+      <div class="tabsearch__list" id="tabsearchList" role="listbox" aria-label="Open tabs"></div>
 
       <div class="tabsearch__foot">
-        <span><b>↑↓</b> выбрать</span>
-        <span><b>Enter</b> перейти</span>
+        <span><b>↑↓</b> select</span>
+        <span><b>Enter</b> open</span>
       </div>
     </section>
   </div>

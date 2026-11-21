@@ -56,7 +56,8 @@ Without the extension, `index.html` opens as a regular page, but `chrome://` but
 
 ### Look and feel
 
-- **Quick links** — compact dark tiles for BSUIR LMS, GitHub, DeepSeek, and Google Drive, each with a white logo and a short label.
+- **Quick links** — four neutral placeholder tiles with a generic link icon and "Link 1–4" labels. Replace them with real links in `index.html`; no personal or third-party links are bundled.
+- **Service logo pack** — `assets/logos/` includes 30 white SVG icons of popular services (Google, Gmail, Drive, YouTube, GitHub, Figma, Notion, Telegram, Discord, Spotify, X, and more). See [assets/logos/README.md](assets/logos/README.md) for the full list and a usage snippet.
 - **Glass lens** — the background behind the cards is blurred and magnified, with soft purple and blue highlights near the edges. All hover effects are disabled.
 - **Background** — Python code and binary strings with PyCharm Darcula syntax colors: orange keywords, green strings, blue numbers, and yellow functions. The whole page is dimmed.
 - **Responsive layout** — on narrow screens the clock and cards stack vertically; the top block stays above the clock.
@@ -108,10 +109,11 @@ Glasshour is designed for modest CPUs and low memory usage:
 - the magnified code layer exists only on the clock, search bar, and calendar;
 - the number of code lines adapts to the screen size;
 - search predictions are requested only while typing, debounced by 110 ms, and the previous request is aborted when the query changes;
+- the service logo pack is not loaded by the default page — only icons you actually reference add a request;
 - all hover effects are removed: no `pointermove`, no per-frame highlights, no card lift;
 - **0 active CSS animations at rest**; only the microphone pulses while listening.
 
-Reference measurement in headless Chrome at 1920×1080: about **0.8 MB JS heap**, roughly **1,800 DOM elements**, and **0 running animations** after load. Results vary by system.
+Reference measurement in headless Chrome at 1920×1080: about **1 MB JS heap**, roughly **1,800 DOM elements**, and **0 running animations** after load. Results vary by system.
 
 ## Limitations
 
@@ -121,7 +123,7 @@ Reference measurement in headless Chrome at 1920×1080: about **0.8 MB JS heap**
 - Tab search requires the `tabs` permission.
 - Search suggestions require host access to `https://suggestqueries.google.com/*`; if the host is blocked or offline, search still works without the dropdown.
 - The project targets Chrome/Chromium with Manifest V3.
-- The UI copy is currently in Russian; the code is structured so it can be translated.
+- The interface and calendar are in English.
 
 ## Tech stack
 
@@ -147,7 +149,7 @@ Reference measurement in headless Chrome at 1920×1080: about **0.8 MB JS heap**
 | Window switching | `script.js`, `focusNextWindow(...)` |
 | Glass edge fade | `--fade` on `.glass` and individual cards |
 | Page dimming | `.dim` in `styles.css` |
-| Quick links and labels | `index.html`, `nav.links` |
+| Quick links and placeholder labels | `index.html`, `nav.links` |
 | Logos and fonts | `assets/` |
 | Magnified background | `assets/code-lens.svg` + `.lens` |
 | Color highlights | `.chroma` (static, no hover) |
@@ -159,8 +161,9 @@ Reference measurement in headless Chrome at 1920×1080: about **0.8 MB JS heap**
 manifest.json      — Chrome extension manifest (MV3)
 index.html         — new tab page markup
 styles.css         — glass, lighting, layout, responsive styles
-script.js          — clock, calendar, search, windows, tabs, background
+script.js          — clock, calendar, search, suggestions, windows, tabs, background
 assets/            — logos, Roboto fonts, lens texture, Google wordmark
+assets/logos/      — 30 white service icons for quick links
 docs/screenshots/  — README screenshots
 LICENSE            — MIT license
 README.md          — this file
@@ -178,4 +181,4 @@ Copyright (c) 2026 Glasshour contributors.
 
 ## Version
 
-**1.14.0** — Google search suggestions under the search bar with keyboard navigation, plus the previous rendering and performance improvements.
+**1.15.2** — the Chrome window switcher stays visible as a disabled button outside extension mode; English interface, placeholder quick links, and the service logo pack remain.

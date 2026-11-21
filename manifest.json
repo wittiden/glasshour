@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Glasshour — новая вкладка",
-  "version": "1.14.0",
-  "description": "Glasshour — стеклянная новая вкладка Chrome: часы, поиск с подсказками, календарь, ссылки, окна Chrome и поиск по вкладкам.",
+  "name": "Glasshour — New Tab",
+  "version": "1.15.2",
+  "description": "Glasshour — glassy Chrome new tab: analog clock, search with suggestions, calendar, quick links, windows, and tab search.",
   "chrome_url_overrides": {
     "newtab": "index.html"
   },

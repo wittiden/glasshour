@@ -1,9 +1,3 @@
-/* =========================================================
-   Glasshour — стеклянная стартовая страница Chrome
-   Часы — правый край, поиск и ссылки — центр слева.
-   Палитра: чёрный · тёмно-серый · графит · белый + Google
-   ========================================================= */
-
 @font-face {
   font-family: "Roboto";
   font-style: normal;
@@ -51,7 +45,6 @@ body {
   position: relative;
   overflow: hidden;
 
-  /* фон осветлён примерно на 20 % */
   background:
     radial-gradient(95vw 85vh at 72% 6%, rgba(214, 217, 230, 0.44) 0%, rgba(214, 217, 230, 0) 64%),
     radial-gradient(80vw 80vh at 4% 98%, rgba(160, 164, 178, 0.34) 0%, rgba(160, 164, 178, 0) 66%),
@@ -72,10 +65,6 @@ body {
   height: 0;
   overflow: hidden;
 }
-
-/* ---------------------------------------------------------
-   Код на фоне
-   --------------------------------------------------------- */
 
 .code {
   position: fixed;
@@ -105,7 +94,6 @@ body {
   color: rgba(169, 183, 198, 0.60);
 }
 
-/* палитра Darcula / PyCharm */
 .tok-kw      { color: rgba(204, 120, 50, 0.95); }
 .tok-str     { color: rgba(106, 135, 89, 0.95); }
 .tok-num     { color: rgba(104, 151, 187, 0.95); }
@@ -122,7 +110,6 @@ body {
     linear-gradient(158deg, rgba(60, 62, 70, 0.70) 0%, rgba(42, 43, 49, 0.82) 48%, rgba(55, 56, 64, 0.72) 100%);
 }
 
-/* затемнение страницы на 40 % */
 .dim {
   position: fixed;
   inset: 0;
@@ -130,10 +117,6 @@ body {
   pointer-events: none;
   background: rgba(0, 0, 0, 0.40);
 }
-
-/* ---------------------------------------------------------
-   Свет за стеклом
-   --------------------------------------------------------- */
 
 .ambient {
   position: fixed;
@@ -182,7 +165,6 @@ body {
   background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.19), rgba(255, 255, 255, 0) 70%);
 }
 
-/* диагональная полоса света — преломляется в стекле */
 .blob--e {
   width: 76vmax;
   height: 16vmax;
@@ -196,12 +178,6 @@ body {
     rgba(255, 255, 255, 0) 100%);
   rotate: -26deg;
 }
-
-/* Свет за стеклом статичный: без постоянных анимаций. */
-
-/* ---------------------------------------------------------
-   Плёнка
-   --------------------------------------------------------- */
 
 .grain {
   position: fixed;
@@ -221,10 +197,6 @@ body {
     radial-gradient(130% 100% at 72% 10%, rgba(0, 0, 0, 0) 42%, rgba(0, 0, 0, 0.30) 100%),
     radial-gradient(110% 90% at 40% 60%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.20) 100%);
 }
-
-/* ---------------------------------------------------------
-   Жидкое стекло
-   --------------------------------------------------------- */
 
 .glass {
   position: relative;
@@ -269,7 +241,6 @@ body {
   animation: glass-in 1.2s var(--ease) both;
 }
 
-/* кромка */
 .glass::before {
   content: "";
   position: absolute;
@@ -294,7 +265,6 @@ body {
           mask-composite: exclude;
 }
 
-/* мягкий бегущий блик — толстый и размытый */
 .glass::after {
   content: "";
   position: absolute;
@@ -320,7 +290,6 @@ body {
   opacity: 0.45;
 }
 
-/* Цветные блики по краям — «желе», следуют за курсором */
 .chroma {
   position: absolute;
   inset: -30%;
@@ -329,14 +298,14 @@ body {
   border-radius: inherit;
 
   background:
-    /* подвижные блики */
+
     radial-gradient(42% 34% at var(--cx, 25%) var(--cy, 22%),
       rgba(186, 164, 255, 0.58),
       rgba(186, 164, 255, 0) 72%),
     radial-gradient(38% 32% at calc(100% - var(--cx, 25%)) calc(100% - var(--cy, 22%)),
       rgba(150, 210, 255, 0.48),
       rgba(150, 210, 255, 0) 72%),
-    /* выраженные блики в углах */
+
     radial-gradient(26% 22% at 5% 7%, rgba(212, 180, 255, 0.80), rgba(212, 180, 255, 0) 72%),
     radial-gradient(24% 20% at 95% 9%, rgba(160, 220, 255, 0.78), rgba(160, 220, 255, 0) 72%),
     radial-gradient(24% 20% at 5% 93%, rgba(170, 230, 255, 0.72), rgba(170, 230, 255, 0) 72%),
@@ -347,7 +316,6 @@ body {
   mix-blend-mode: screen;
 }
 
-/* увеличенный «под лупой» фон из кода */
 .lens {
   position: absolute;
   inset: -8%;
@@ -369,7 +337,6 @@ body {
 .calendar .lens { opacity: 0.12; }
 .link .lens { display: none; }
 
-/* блик под курсором */
 .glare {
   position: absolute;
   inset: 0;
@@ -409,10 +376,6 @@ body {
       linear-gradient(152deg, rgba(54, 55, 63, 0.96), rgba(30, 31, 36, 0.96));
   }
 }
-
-/* ---------------------------------------------------------
-   Верхние кнопки Chrome
-   --------------------------------------------------------- */
 
 .topbar {
   --fade: 5px;
@@ -483,7 +446,7 @@ body {
 }
 
 .topbar__btn:disabled {
-  opacity: 0.42;
+  opacity: 0.52;
   cursor: default;
 }
 
@@ -495,7 +458,6 @@ body {
 .topbar__btn[hidden],
 .topbar__count[hidden] { display: none; }
 
-/* счётчик открытых окон */
 .topbar__count {
   position: absolute;
   right: 1px;
@@ -519,10 +481,6 @@ body {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.40);
   pointer-events: none;
 }
-
-/* ---------------------------------------------------------
-   Часы: правый край
-   --------------------------------------------------------- */
 
 .clock {
   position: fixed;
@@ -556,14 +514,9 @@ body {
   box-shadow: none;
 }
 
-/* внутренний ободок убран */
 .clock__face::before {
   content: none;
 }
-
-/* ---------------------------------------------------------
-   Деления
-   --------------------------------------------------------- */
 
 .ticks {
   position: absolute;
@@ -585,15 +538,10 @@ body {
   background: rgba(255, 255, 255, 0.68);
 }
 
-/* четыре ключевых деления — цвета Google */
 .tick-mark.is-blue   { width: 1.3%; background: var(--g-blue);   box-shadow: 0 0 12px rgba(66, 133, 244, 0.35); }
 .tick-mark.is-red    { width: 1.3%; background: var(--g-red);    box-shadow: 0 0 12px rgba(234, 67, 53, 0.35); }
 .tick-mark.is-yellow { width: 1.3%; background: var(--g-yellow); box-shadow: 0 0 12px rgba(251, 188, 5, 0.35); }
 .tick-mark.is-green  { width: 1.3%; background: var(--g-green);  box-shadow: 0 0 12px rgba(52, 168, 83, 0.35); }
-
-/* ---------------------------------------------------------
-   Цифры 1–12 — Roboto (шрифт в духе Google Chrome)
-   --------------------------------------------------------- */
 
 .numerals {
   position: absolute;
@@ -615,10 +563,6 @@ body {
   font-variant-numeric: tabular-nums;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
-
-/* ---------------------------------------------------------
-   Стрелки — стиль iOS, цвета Google
-   --------------------------------------------------------- */
 
 .hand {
   position: absolute;
@@ -654,7 +598,6 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* хвостик секундной стрелки, как в iOS */
 .hand--second::after {
   content: "";
   position: absolute;
@@ -666,7 +609,6 @@ body {
   background: linear-gradient(180deg, #fbbc05, #d99e00);
 }
 
-/* центральная ось */
 .pin {
   position: absolute;
   left: 50%;
@@ -692,7 +634,6 @@ body {
   box-shadow: 0 0 8px rgba(251, 188, 5, 0.80);
 }
 
-/* цифровое время внизу циферблата — на месте модели часов */
 .clock__digital {
   position: absolute;
   left: 50%;
@@ -712,7 +653,6 @@ body {
   user-select: none;
 }
 
-/* отражение на стекле циферблата */
 .crystal {
   position: absolute;
   inset: 0;
@@ -726,10 +666,6 @@ body {
     radial-gradient(28% 16% at 70% 88%, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 72%),
     radial-gradient(120% 120% at 50% 50%, rgba(255, 255, 255, 0) 62%, rgba(255, 255, 255, 0.04) 100%);
 }
-
-/* ---------------------------------------------------------
-   Левая колонка: поиск и ссылки
-   --------------------------------------------------------- */
 
 .left {
   position: fixed;
@@ -753,7 +689,6 @@ body {
   gap: clamp(12px, 1.6vw, 18px);
 }
 
-/* фирменный знак Google над поиском: прозрачная область без подложки */
 .google-brand {
   position: relative;
   z-index: 6;
@@ -776,7 +711,6 @@ body {
   filter: none;
 }
 
-/* невидимые defs для градиента иконок */
 .svg-defs {
   position: absolute;
   width: 0;
@@ -784,10 +718,6 @@ body {
   overflow: hidden;
   pointer-events: none;
 }
-
-/* ---------------------------------------------------------
-   Календарь
-   --------------------------------------------------------- */
 
 .calendar {
   --fade: 8px;
@@ -946,10 +876,8 @@ body {
   filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.4));
 }
 
-/* иконка Google внутри поиска — белая */
 .g-logo path { fill: currentColor; }
 
-/* нижнее свечение поиска в цветах Google */
 .search__google-line {
   position: absolute;
   inset: 0;
@@ -967,7 +895,6 @@ body {
   filter: blur(17px) saturate(112%);
   opacity: 0.40;
 
-  /* свечение обрезается ровно по форме блока поиска */
   -webkit-clip-path: inset(0 round var(--card-r));
           clip-path: inset(0 round var(--card-r));
 
@@ -1049,14 +976,12 @@ body {
   outline-offset: 2px;
 }
 
-/* активные кнопки: круг как у микрофона + цвета Google */
 .tool.is-active,
 .tool.is-listening {
   background: rgba(255, 255, 255, 0.22);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
-/* пульсирует только микрофон */
 .tool.is-listening {
   animation: mic-pulse 1.5s var(--ease) infinite;
 }
@@ -1105,10 +1030,6 @@ body {
 }
 
 .search:focus-within .search__input::placeholder { color: rgba(247, 247, 249, 0.30); }
-
-/* ---------------------------------------------------------
-   Поисковые подсказки
-   --------------------------------------------------------- */
 
 .suggest {
   position: absolute;
@@ -1194,10 +1115,6 @@ body {
   color: #ffffff;
   font-weight: 600;
 }
-
-/* ---------------------------------------------------------
-   Загрузка фото
-   --------------------------------------------------------- */
 
 .lenspop {
   position: absolute;
@@ -1380,10 +1297,6 @@ body {
   color: rgba(255, 255, 255, 0.38);
 }
 
-/* ---------------------------------------------------------
-   Ссылки
-   --------------------------------------------------------- */
-
 .links {
   display: flex;
   gap: 6px;
@@ -1422,6 +1335,12 @@ body {
 .link::before { display: none; }
 .link::after { display: none; }
 
+.link--placeholder { cursor: default; }
+
+.link--placeholder .link__logo {
+  color: rgba(255, 255, 255, 0.52);
+}
+
 .link:focus-visible {
   background-color: rgba(18, 19, 24, 0.82);
   outline: 1px solid rgba(255, 255, 255, 0.35);
@@ -1445,7 +1364,6 @@ body {
   object-fit: contain;
 }
 
-/* логотипы ссылок — чисто белые */
 .link__logo img {
   filter: brightness(0) invert(1);
 }
@@ -1470,10 +1388,6 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-/* ---------------------------------------------------------
-   Поиск по открытым вкладкам
-   --------------------------------------------------------- */
 
 .tabsearch {
   position: fixed;
@@ -1671,10 +1585,6 @@ body {
   background: rgba(255, 255, 255, 0.12);
 }
 
-/* ---------------------------------------------------------
-   Адаптив
-   --------------------------------------------------------- */
-
 @media (max-width: 1180px) {
   :root { --clock-size: min(46vw, 78vh); }
 
@@ -1772,10 +1682,6 @@ body {
   .lenspop__drop { min-height: 130px; }
   .lenspop__preview img { max-height: 140px; }
 }
-
-/* ---------------------------------------------------------
-   Доступность
-   --------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   .blob,

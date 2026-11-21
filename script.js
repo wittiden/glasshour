@@ -1,11 +1,5 @@
-/* =========================================================
-   Glasshour — логика страницы
-   ========================================================= */
-
 (() => {
   "use strict";
-
-  /* ---------- Циферблат ---------- */
 
   const ticksEl = document.getElementById("ticks");
   const hourHand = document.getElementById("hourHand");
@@ -14,16 +8,14 @@
   const digitalClock = document.getElementById("digitalClock");
 
   const QUARTER_COLORS = {
-    0: "is-blue",    // 12
-    15: "is-red",    // 3
-    30: "is-yellow", // 6
-    45: "is-green",  // 9
+    0: "is-blue",
+    15: "is-red",
+    30: "is-yellow",
+    45: "is-green",
   };
 
   const fragment = document.createDocumentFragment();
 
-  // Деления идут от краёв самого блока часов: на углах они длиннее,
-  // потому что угол дальше от центра, чем середина стороны.
   const clockEl = document.querySelector(".clock");
   const clockRect = clockEl.getBoundingClientRect();
   const clockSize = clockRect.width || 1;
@@ -75,8 +67,6 @@
 
   ticksEl.appendChild(fragment);
 
-  /* ---------- Только 12, 3, 6, 9 ---------- */
-
   const numeralsEl = document.getElementById("numerals");
   const numeralFragment = document.createDocumentFragment();
   const NUM_RADIUS = 34;
@@ -94,8 +84,6 @@
   }
 
   numeralsEl.appendChild(numeralFragment);
-
-  /* ---------- Фон: python-код и бинарный шум ---------- */
 
   const CODE_LINES = [
     "def liquid_glass(x):",
@@ -166,12 +154,11 @@
         const isCall = /^\s*\(/.test(code.slice(CODE_TOKEN_RE.lastIndex));
         const isDefinition = /(?:def|class)\s+$/.test(code.slice(0, match.index));
 
-        // Обычные имена не оборачиваем: они наследуют базовый цвет строки.
         html += isCall || isDefinition
           ? `<span class="tok-fn">${escapeCode(token)}</span>`
           : escapeCode(token);
       } else {
-        // Пробелы и пунктуация тоже не создают лишних DOM-узлов.
+
         html += escapeCode(token);
       }
 
@@ -187,7 +174,7 @@
   const codeGrid = document.getElementById("codeGrid");
 
   if (codeGrid) {
-    // Количество строк/колонок зависит от экрана: меньше DOM — меньше памяти
+
     const COLUMNS = Math.min(22, Math.max(10, Math.ceil(window.innerWidth / 150) + 2));
     const LINES_PER_COLUMN = Math.min(120, Math.max(40, Math.ceil((window.innerHeight * 1.3) / 24) + 4));
     const grid = document.createDocumentFragment();
@@ -216,8 +203,6 @@
     codeGrid.appendChild(grid);
   }
 
-  /* ---------- Календарь ---------- */
-
   const calWeekday = document.getElementById("calWeekday");
   const calDay = document.getElementById("calDay");
   const calMonth = document.getElementById("calMonth");
@@ -225,10 +210,10 @@
 
   if (calDay) {
     const now = new Date();
-    const weekday = new Intl.DateTimeFormat("ru-RU", { weekday: "short" })
+    const weekday = new Intl.DateTimeFormat("en-US", { weekday: "short" })
       .format(now)
       .replace(".", "");
-    const month = new Intl.DateTimeFormat("ru-RU", { month: "long" }).format(now);
+    const month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(now);
 
     calWeekday.textContent = weekday.toUpperCase();
     calDay.textContent = String(now.getDate());
@@ -245,7 +230,7 @@
       calTitle.textContent = `${month} ${year}`;
 
       const firstDay = new Date(year, monthIndex, 1);
-      const offset = (firstDay.getDay() + 6) % 7; // понедельник — первый
+      const offset = (firstDay.getDay() + 6) % 7;
       const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
 
       const grid = document.createDocumentFragment();
@@ -268,8 +253,6 @@
     }
   }
 
-  /* ---------- Увеличенный фон под стеклом ---------- */
-
   document.querySelectorAll(".clock, .search, .calendar").forEach((el, i) => {
     if (el.querySelector(":scope > .lens")) return;
 
@@ -282,12 +265,8 @@
     el.prepend(lens);
   });
 
-  /* ---------- Ход стрелок ---------- */
-
   const angle = (el, deg) => el.style.setProperty("--angle", deg.toFixed(3) + "deg");
 
-  // Часы обновляются раз в секунду и полностью останавливаются,
-  // когда вкладка скрыта — в фоне не тратятся CPU и батарея.
   let clockTimer = null;
   let clockInView = true;
   let lastMinute = -1;
@@ -307,8 +286,6 @@
     const minute = now.getMinutes();
     const min = minute + sec / 60;
 
-    // Часовая рука двигается раз в минуту: за секунду она смещается
-    // на сотые доли градуса, поэтому пересчитывать её чаще не нужно.
     if (minute !== lastMinute) {
       lastMinute = minute;
 
@@ -320,7 +297,7 @@
 
         if (digitalClock.textContent !== label) {
           digitalClock.textContent = label;
-          clockEl.setAttribute("aria-label", "Текущее время: " + label);
+          clockEl.setAttribute("aria-label", "Current time: " + label);
         }
       }
     }
@@ -348,8 +325,6 @@
     else startClock();
   });
 
-  // На мобильных часах можно уйти вниз по странице — вне экрана
-  // стрелки не пересчитываются, пока часы снова не появятся.
   if ("IntersectionObserver" in window && clockEl) {
     const clockObserver = new IntersectionObserver((entries) => {
       clockInView = entries.some(
@@ -365,9 +340,6 @@
 
   startClock();
 
-  /* ---------- Поиск ---------- */
-
-  // Поисковик можно заменить, например на "https://ya.ru/search/?text="
   const SEARCH_URL = "https://www.google.com/search?q=";
   const AI_URL = "https://www.google.com/search?udm=50&q=";
 
@@ -449,9 +421,7 @@
     input.focus();
   });
 
-  /* ---------- Поисковые подсказки ---------- */
-
-  const SUGGEST_URL = "https://suggestqueries.google.com/complete/search?client=chrome&hl=ru&q=";
+  const SUGGEST_URL = "https://suggestqueries.google.com/complete/search?client=chrome&hl=en&q=";
   const MAX_SUGGESTIONS = 8;
 
   const SUGGEST_ICON =
@@ -498,7 +468,6 @@
       return;
     }
 
-    // Подсказки и меню фото/AI занимают одно место под строкой поиска.
     if (typeof closeLensPop === "function") closeLensPop();
     if (typeof closeAiPop === "function") closeAiPop();
 
@@ -653,14 +622,12 @@
     closeSuggestions();
   });
 
-  /* ---------- Голосовой ввод ---------- */
-
   const micBtn = document.getElementById("micBtn");
   const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (micBtn && Speech) {
     const recognizer = new Speech();
-    recognizer.lang = "ru-RU";
+    recognizer.lang = navigator.language || "en-US";
     recognizer.interimResults = false;
     recognizer.maxAlternatives = 1;
     let listening = false;
@@ -673,7 +640,7 @@
       try {
         recognizer.start();
       } catch (err) {
-        /* повторный запуск до завершения предыдущего — игнорируем */
+
       }
     });
 
@@ -703,11 +670,10 @@
       input.select();
     });
   } else if (micBtn) {
-    // если браузер не умеет распознавание — просто ставим курсор в строку
+
     micBtn.addEventListener("click", () => input.focus());
   }
 
-  // «/» или Ctrl/⌘ + K — фокус на поиске
   document.addEventListener("keydown", (e) => {
     const ts = document.getElementById("tabsearch");
     if (ts && !ts.hidden) return;
@@ -722,8 +688,6 @@
       input.select();
     }
   });
-
-  /* ---------- Поиск по открытым вкладкам ---------- */
 
   const tabsBtn = document.getElementById("tabsBtn");
   const tabsearch = document.getElementById("tabsearch");
@@ -796,11 +760,11 @@
       empty.className = "tabsearch__empty";
 
       if (!hasTabsApi) {
-        empty.textContent = "Поиск по вкладкам доступен в установленном расширении Chrome";
+        empty.textContent = "Tab search is available in the installed Chrome extension";
       } else if (!tabCache.length) {
-        empty.textContent = "Открытых вкладок нет";
+        empty.textContent = "No open tabs";
       } else {
-        empty.textContent = "Ничего не найдено";
+        empty.textContent = "Nothing found";
       }
 
       tabsearchList.appendChild(empty);
@@ -861,8 +825,8 @@
     const loading = document.createElement("div");
     loading.className = "tabsearch__empty";
     loading.textContent = hasTabsApi
-      ? "Загружаем вкладки…"
-      : "Поиск по вкладкам доступен в установленном расширении Chrome";
+      ? "Loading tabs…"
+      : "Tab search is available in the installed Chrome extension";
     tabsearchList.appendChild(loading);
 
     tabsearchInput.focus();
@@ -879,7 +843,7 @@
           .map((tab) => ({
             id: tab.id,
             windowId: tab.windowId,
-            title: tab.title || tab.url || "Без названия",
+            title: tab.title || tab.url || "Untitled",
             url: tab.url || "",
             favicon: tab.favIconUrl || "",
           }))
@@ -904,7 +868,6 @@
     tabsearchBackdrop?.addEventListener("click", closeTabSearch);
     tabsearchInput?.addEventListener("input", renderTabList);
 
-    // Стрелки работают независимо от того, где фокус внутри окна поиска вкладок
     document.addEventListener("keydown", (e) => {
       if (!tabsearch.hidden) {
         if (e.key === "Escape") {
@@ -928,8 +891,6 @@
     });
   }
 
-  /* ---------- Загрузка фото ---------- */
-
   const lensBtn = document.getElementById("lensBtn");
   const lensPop = document.getElementById("lensPop");
   const lensDrop = document.getElementById("lensDrop");
@@ -941,8 +902,6 @@
   const lensFileActions = document.getElementById("lensFileActions");
   const lensChange = document.getElementById("lensChange");
   const lensClear = document.getElementById("lensClear");
-
-  /* ---------- AI Mode ---------- */
 
   const aiPop = document.getElementById("aiPop");
   const aiInput = document.getElementById("aiInput");
@@ -1181,8 +1140,6 @@
     });
   });
 
-  /* ---------- Кнопки Chrome ---------- */
-
   const extensionsBtn = document.getElementById("extensionsBtn");
   const settingsBtn = document.getElementById("settingsBtn");
 
@@ -1196,7 +1153,7 @@
         });
         return;
       } catch (err) {
-        /* переходим к запасному варианту */
+
       }
     }
 
@@ -1205,8 +1162,6 @@
 
   extensionsBtn?.addEventListener("click", () => openChromePage("chrome://extensions/"));
   settingsBtn?.addEventListener("click", () => openChromePage("chrome://settings/"));
-
-  /* ---------- Переключение окон Chrome ---------- */
 
   const windowsBtn = document.getElementById("windowsBtn");
   const windowsCount = document.getElementById("windowsCount");
@@ -1226,15 +1181,15 @@
     windowsBtn.classList.toggle("is-single", !multiple);
 
     windowsBtn.title = multiple
-      ? "Следующее окно Chrome · открыто: " + total
+      ? "Next Chrome window · open: " + total
       : total === 1
-        ? "Открыто одно окно Chrome"
-        : "Не удалось получить список окон";
+        ? "One Chrome window open"
+        : "Could not get the window list";
 
     windowsBtn.setAttribute(
       "aria-label",
       multiple
-        ? "Переключить на следующее окно Chrome, открыто окон: " + total
+        ? "Switch to the next Chrome window; open windows: " + total
         : windowsBtn.title,
     );
   }
@@ -1245,7 +1200,13 @@
     const windowsApi = window.chrome?.windows;
 
     if (!windowsApi?.getAll) {
-      windowsBtn.hidden = true;
+      windowsBtn.hidden = false;
+      windowsBtn.disabled = true;
+      windowsBtn.classList.add("is-single");
+      if (windowsCount) windowsCount.hidden = true;
+
+      windowsBtn.title = "Window switching is available in the Chrome extension";
+      windowsBtn.setAttribute("aria-label", windowsBtn.title);
       return;
     }
 
@@ -1318,7 +1279,4 @@
     windowsApi?.onRemoved?.addListener(refreshWindows);
   }
 
-  /* ---------- Статичные блики ---------- */
-  // Эффекты при наведении удалены: цветные блики остаются статичными,
-  // никаких pointermove/rAF-циклов на странице нет.
 })();
